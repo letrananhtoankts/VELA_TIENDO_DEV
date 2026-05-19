@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>VELA E&C — Theo dõi tiến độ v7.2</title>
+<title>VELA E&C — Theo dõi tiến độ v7.3</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -334,7 +334,77 @@ header{background:#111827;border-bottom:1px solid #1e293b;padding:5px 14px;displ
 .mp-ms-num{font-size:15px;font-weight:700}
 .mp-ms-lbl{font-size:8px;color:var(--muted);margin-top:1px}
 
-/* ── EDITOR TAB ── */
+/* ── HOÀN THIỆN TAB ── */
+.ht-wrap{display:flex;flex:1;overflow:hidden;min-height:0}
+.ht-map{flex:1;position:relative;overflow:hidden;background:#1e293b;min-width:0}
+.ht-ms{width:100%;height:100%;overflow:auto}
+.ht-mw{display:inline-block;transform-origin:top left;line-height:0}
+.ht-zc{position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;gap:3px;z-index:10}
+.ht-leg{position:absolute;bottom:12px;left:12px;background:rgba(15,23,42,.92);border:1px solid #334155;border-radius:8px;padding:8px 12px;font-size:10px;z-index:10}
+.ht-panel{width:340px;flex-shrink:0;background:#f8fafc;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.ht-pe{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 18px;text-align:center;color:var(--muted)}
+.ht-pb{display:none;flex-direction:column;overflow-y:auto;height:100%}
+.ht-pb.show{display:flex}
+.ht-pb::-webkit-scrollbar{width:3px}
+.ht-pb::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:2px}
+.ht-phdr{padding:12px 14px 10px;background:#0f3460;color:#fff;flex-shrink:0}
+.ht-pz{font-size:8px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#7dd3fc;margin-bottom:1px}
+.ht-pid{font-size:20px;font-weight:700;margin-bottom:1px}
+.ht-psub{font-size:10px;color:#93c5fd}
+.ht-progress-bar{height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-top:8px;overflow:hidden}
+.ht-progress-fill{height:100%;border-radius:2px;background:#34d399;transition:width .5s}
+.ht-pct-txt{font-size:9px;color:#7dd3fc;margin-top:3px}
+/* Task matrix table */
+.ht-table-wrap{padding:10px 12px;flex:1}
+.ht-table{width:100%;border-collapse:collapse;font-size:11px}
+.ht-table th{background:#f1f5f9;color:#64748b;font-weight:600;padding:6px 8px;text-align:left;border-bottom:2px solid #e2e8f0;font-size:9px;text-transform:uppercase;letter-spacing:.04em}
+.ht-table td{padding:7px 8px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.ht-table tr:hover td{background:#f8fafc}
+.ht-task-name{font-size:11px;font-weight:500;color:#1e293b}
+.ht-task-code{font-size:8px;color:#94a3b8;font-family:'JetBrains Mono',monospace}
+.ht-task-kl{font-size:10px;color:#64748b}
+.ht-status-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700}
+.ht-status-done{background:#dcfce7;color:#166534}
+.ht-status-doing{background:#fef9c3;color:#854d0e}
+.ht-status-none{background:#f1f5f9;color:#94a3b8}
+.ht-photo-thumb{width:32px;height:32px;border-radius:5px;object-fit:cover;cursor:pointer;border:1px solid #e2e8f0}
+/* Update form */
+.ht-form-wrap{padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;background:#f8fafc}
+.ht-form-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#475569;margin-bottom:8px}
+.ht-sel{width:100%;background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:12px;color:#1e293b;font-family:inherit;outline:none;margin-bottom:6px;cursor:pointer}
+.ht-sel:focus{border-color:var(--gold)}
+.ht-radio-group{display:flex;gap:6px;margin-bottom:6px}
+.ht-radio-btn{flex:1;font-family:inherit;font-size:11px;padding:6px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;text-align:center;transition:all .15s;color:#64748b}
+.ht-radio-btn.active-doing{border-color:#f59e0b;background:rgba(245,158,11,.1);color:#b45309;font-weight:600}
+.ht-radio-btn.active-done{border-color:#10b981;background:rgba(16,185,129,.1);color:#065f46;font-weight:600}
+.ht-save-btn{width:100%;font-family:inherit;font-size:12px;font-weight:700;padding:9px;border-radius:7px;border:none;background:var(--gold);color:#111827;cursor:pointer;margin-top:6px;transition:all .15s}
+.ht-save-btn:hover{background:#d4974a}
+.ht-save-btn:disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
+/* KL sub-inputs */
+.ht-kl-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:6px}
+.ht-kl-inp{background:#fff;border:1px solid #e2e8f0;border-radius:5px;padding:5px 7px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#1e293b;outline:none;width:100%}
+.ht-kl-inp:focus{border-color:var(--gold)}
+.ht-kl-label{font-size:8px;color:#94a3b8;text-align:center;margin-bottom:2px}
+/* Summary bar */
+.ht-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#1e293b;border-bottom:1px solid #1e293b;flex-shrink:0}
+.ht-stat{background:#111827;padding:4px 10px;text-align:center}
+.ht-stat-n{font-size:14px;font-weight:700;color:#f1f5f9}
+.ht-stat-l{font-size:8px;color:#475569;text-transform:uppercase;letter-spacing:.04em}
+/* Mobile HT */
+.mob-ht-section{background:#111827;border:1px solid #1e293b;border-radius:12px;padding:14px;margin-bottom:12px}
+.mob-ht-task-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #1e293b}
+.mob-ht-task-row:last-child{border-bottom:none}
+.mob-ht-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mob-ht-name{font-size:11px;color:#94a3b8;flex:1}
+.mob-ht-pct{font-size:10px;font-weight:700;color:#f1f5f9;min-width:35px;text-align:right}
+/* Upload progress HT */
+.ht-upload-area{border:1px dashed #cbd5e1;border-radius:6px;padding:8px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:6px}
+.ht-upload-area:hover{border-color:var(--gold);background:rgba(200,169,110,.04)}
+.ht-upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.ht-preview-wrap{position:relative;margin-bottom:6px}
+.ht-preview-img{width:100%;max-height:100px;object-fit:cover;border-radius:6px;display:block}
+.ht-preview-clr{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;font-family:inherit}
+
 #tab-editor{background:#0d1520}
 .ed-wrap{display:flex;flex:1;overflow:hidden;min-height:0}
 .ed-canvas{flex:1;position:relative;overflow:hidden;min-width:0}
@@ -550,7 +620,8 @@ option{background:#111827}
     </div>
     <div class="h-spacer"></div>
     <div class="h-tabs">
-      <button class="h-tab active" id="htab-map" onclick="switchTab('map')">🗺 Bản đồ</button>
+      <button class="h-tab active" id="htab-map" onclick="switchTab('map')">🗺 Kết cấu</button>
+      <button class="h-tab" id="htab-hoanThien" onclick="switchTab('hoanThien')">🏗 Hoàn thiện</button>
       <button class="h-tab" id="htab-editor" onclick="switchTab('editor')" style="display:none">✏️ Editor</button>
       <button class="h-tab" id="htab-admin" onclick="switchTab('admin')" style="display:none">⚙️ Quản lý</button>
     </div>
@@ -812,6 +883,97 @@ option{background:#111827}
     </div>
   </div>
 
+  <!-- TAB: HOÀN THIỆN -->
+  <div class="tab-content" id="tab-hoanThien">
+    <div class="ht-summary">
+      <div class="ht-stat"><div class="ht-stat-n" id="ht-s-total">—</div><div class="ht-stat-l">Tổng căn</div></div>
+      <div class="ht-stat"><div class="ht-stat-n" id="ht-s-done" style="color:#34d399">—</div><div class="ht-stat-l">Hoàn thành</div></div>
+      <div class="ht-stat"><div class="ht-stat-n" id="ht-s-doing" style="color:var(--gold)">—</div><div class="ht-stat-l">Đang TC</div></div>
+      <div class="ht-stat"><div class="ht-stat-n" id="ht-s-none" style="color:#475569">—</div><div class="ht-stat-l">Chưa BĐ</div></div>
+    </div>
+    <div class="ht-wrap">
+      <!-- MAP -->
+      <div class="ht-map">
+        <div class="map-loading" id="ht-map-loading" style="display:none"><div class="spin"></div><span>Đang tải...</span></div>
+        <div class="ht-ms" id="ht-ms"><div class="ht-mw" id="ht-mw">
+          <svg id="ht-map-svg" xmlns="http://www.w3.org/2000/svg">
+            <rect id="ht-map-bg" fill="#1e293b"/>
+            <image id="ht-map-img" preserveAspectRatio="xMidYMid meet"/>
+            <g id="ht-pg"></g>
+          </svg>
+        </div></div>
+        <div class="ht-leg">
+          <div class="lt">Hoàn thiện · Click để lọc</div>
+          <div class="lr" onclick="htFilterStatus('done')" id="ht-leg-done"><div class="ld" style="background:#059669"></div><span style="flex:1">Hoàn thành (100%)</span><span class="leg-cnt" id="ht-leg-done-cnt">—</span></div>
+          <div class="lr" onclick="htFilterStatus('doing')" id="ht-leg-doing"><div class="ld" style="background:#d97706"></div><span style="flex:1">Đang thi công</span><span class="leg-cnt" id="ht-leg-doing-cnt">—</span></div>
+          <div class="lr" onclick="htFilterStatus('none')" id="ht-leg-none"><div class="ld" style="background:#374151"></div><span style="flex:1">Chưa bắt đầu</span><span class="leg-cnt" id="ht-leg-none-cnt">—</span></div>
+          <div class="lr" onclick="htClearFilter()" style="color:#f87171;font-size:9px;margin-top:4px">✕ Xóa filter</div>
+        </div>
+        <div class="ht-zc"><div class="zb" onclick="htZoom(1.25)">+</div><div class="zb" onclick="htZoom(0.8)">−</div><div class="zb" onclick="htResetZoom()" style="font-size:8px">FIT</div></div>
+      </div>
+      <!-- PANEL PHẢI -->
+      <div class="ht-panel">
+        <div class="ht-pe" id="ht-pe">
+          <div class="peico">🏗</div>
+          <h3>Chọn căn hộ</h3>
+          <p>Click vào căn trên bản đồ<br>để xem tiến độ hoàn thiện</p>
+        </div>
+        <div class="ht-pb" id="ht-pb">
+          <div class="ht-phdr">
+            <div class="ht-pz" id="ht-pz">—</div>
+            <div class="ht-pid" id="ht-pid">—</div>
+            <div class="ht-psub" id="ht-psub">—</div>
+            <div class="ht-progress-bar"><div class="ht-progress-fill" id="ht-progress-fill" style="width:0%"></div></div>
+            <div class="ht-pct-txt" id="ht-pct-txt">0 / 0 công tác hoàn thành · 0%</div>
+          </div>
+          <!-- Bảng công tác -->
+          <div class="ht-table-wrap">
+            <table class="ht-table">
+              <thead><tr><th>Công tác</th><th>KL plan</th><th>Trạng thái</th><th>Ảnh</th></tr></thead>
+              <tbody id="ht-task-tbody"></tbody>
+            </table>
+          </div>
+          <!-- Form cập nhật -->
+          <div class="ht-form-wrap" id="ht-form-wrap" style="display:none">
+            <div class="ht-form-title">📝 Cập nhật công tác</div>
+            <select class="ht-sel" id="ht-task-sel"></select>
+            <div class="ht-radio-group">
+              <button class="ht-radio-btn" id="ht-btn-doing" onclick="htSetStatus('doing')">🔄 Đang thi công</button>
+              <button class="ht-radio-btn" id="ht-btn-done" onclick="htSetStatus('done')">✅ Hoàn thành</button>
+            </div>
+            <div style="font-size:9px;color:#94a3b8;margin-bottom:4px">Ngày cập nhật</div>
+            <input type="date" class="ht-sel" id="ht-date-inp" style="margin-bottom:6px">
+            <div id="ht-kl-inputs" style="display:none">
+              <div style="font-size:9px;color:#94a3b8;margin-bottom:4px">KL thực tế (tự lấy từ định mức khi Hoàn thành)</div>
+              <div class="ht-kl-row">
+                <div><div class="ht-kl-label">m² (chính)</div><input class="ht-kl-inp" id="ht-kl-m2" type="number" step="0.1" placeholder="0" readonly></div>
+                <div><div class="ht-kl-label">BT (m³)</div><input class="ht-kl-inp" id="ht-kl-bt" type="number" step="0.01" placeholder="0" readonly></div>
+                <div><div class="ht-kl-label">CT (tấn)</div><input class="ht-kl-inp" id="ht-kl-ct" type="number" step="0.001" placeholder="0" readonly></div>
+              </div>
+            </div>
+            <div style="font-size:9px;color:#94a3b8;margin-bottom:4px">📷 Ảnh nghiệm thu <span style="color:#ef4444">*bắt buộc</span></div>
+            <div id="ht-photo-preview-wrap" style="display:none" class="ht-preview-wrap">
+              <img id="ht-photo-preview" class="ht-preview-img" src="" alt="">
+              <button class="ht-preview-clr" onclick="htClearPhoto()">✕</button>
+            </div>
+            <div class="ht-upload-area" id="ht-upload-area">
+              <input type="file" id="ht-photo-input" accept="image/*" onchange="onHtPhotoSelected(this)">
+              <div style="font-size:11px;color:#64748b">📷 Chọn ảnh nghiệm thu</div>
+            </div>
+            <div class="upload-prog" id="ht-upload-prog"><div class="upload-prog-fill" id="ht-upload-fill"></div></div>
+            <div style="display:flex;gap:6px;margin-top:4px">
+              <button class="ht-save-btn" id="ht-save-btn" onclick="htSubmit()">✓ Lưu</button>
+              <button onclick="htCancelForm()" style="font-family:inherit;font-size:11px;padding:9px 14px;border-radius:7px;border:1px solid #e2e8f0;background:transparent;color:#64748b;cursor:pointer">Hủy</button>
+            </div>
+          </div>
+          <div style="padding:6px 12px;border-top:1px solid var(--border)">
+            <button id="ht-btn-update" onclick="htToggleForm()" style="display:none;width:100%;font-family:inherit;font-size:11px;padding:7px;border-radius:6px;cursor:pointer;border:1px solid rgba(14,165,233,.4);background:rgba(14,165,233,.1);color:#0ea5e9;font-weight:600">📝 Cập nhật hoàn thiện</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- TAB: EDITOR -->
   <div class="tab-content" id="tab-editor">
     <div class="ed-wrap">
@@ -950,6 +1112,10 @@ let PROJECTS=[], CUR=null, COORDS={}, VI={}, SD={}, KL={};
 let sel=null, multiSel=new Set(), zl=0.7, klChart=null, refreshTimer=null;
 let mapW=2000, mapH=1760;
 let msFilter=null;
+
+// Hoàn thiện state
+let HT_TASKS=[], HT_STATUS={}, HT_DINH_MUC={};
+let htSel=null, htZl=0.7, htFilter=null, htSelectedStatus='done', htPhotoFile=null;
 let authToken=null, authUser=null, tokenClient=null, userRole='viewer', userProjectIds=[], _inWhitelist=false;
 
 // ════════════════════════════════════════
@@ -1187,6 +1353,11 @@ function switchTab(t){
   document.getElementById('tab-'+t).classList.add('active');
   document.getElementById('htab-'+t).classList.add('active');
   if(t==='editor'){edResetForProject();setTimeout(edBuildKLTable,500);}
+  if(t==='hoanThien'){
+    // Render map HT nếu đã có data
+    if(CUR&&Object.keys(COORDS).length)htRenderMap();
+    htUpdateSummary();
+  }
 }
 
 // ════════════════════════════════════════
@@ -1357,6 +1528,8 @@ async function loadProjectData(){
     // FIX: Guard mobile render — chỉ render khi đang ở mobile
     if(window.innerWidth<=767) renderMobileOverview();
     loadPhotoLog();
+    // Load dữ liệu Hoàn thiện song song
+    await loadHTData();
     document.getElementById('lupd').textContent='Cập nhật: '+new Date().toLocaleTimeString('vi-VN');
     document.getElementById('mob-upd-date').textContent=new Date().toLocaleDateString('vi-VN');
   }catch(e){
@@ -2485,11 +2658,335 @@ document.addEventListener('DOMContentLoaded',()=>{
 window.addEventListener('load',()=>{loadLogo();},true);
 
 // ════════════════════════════════════════
+// HOÀN THIỆN — DATA
+// ════════════════════════════════════════
+async function loadHTData(){
+  if(!CUR)return;
+  try{
+    const[rCfg,rDm,rSt]=await Promise.all([
+      gapi(CUR.sheetId,'HTConfig!A:G'),
+      gapi(CUR.sheetId,'HTDinhMuc!A:F'),
+      gapi(CUR.sheetId,'HTStatus!A:F'),
+    ]);
+    // HTConfig: TaskCode | TaskName | Unit | HasBT | HasCT | HasCF | Order
+    HT_TASKS=[];
+    (rCfg.values||[]).slice(1).filter(r=>r[0]).forEach(r=>{
+      HT_TASKS.push({
+        code:r[0]||'',name:r[1]||r[0],unit:r[2]||'m²',
+        hasBT:r[3]==='1'||r[3]===1||r[3]===true,
+        hasCT:r[4]==='1'||r[4]===1||r[4]===true,
+        hasCF:r[5]==='1'||r[5]===1||r[5]===true,
+        order:parseInt(r[6])||99
+      });
+    });
+    HT_TASKS.sort((a,b)=>a.order-b.order);
+
+    // HTDinhMuc: VillaCode | TaskCode | KL_plan | BT_plan | CT_plan | CF_plan
+    HT_DINH_MUC={};
+    (rDm.values||[]).slice(1).filter(r=>r[0]&&r[1]).forEach(r=>{
+      const key=r[0]+'|'+r[1];
+      HT_DINH_MUC[key]={
+        m2:parseFloat(r[2])||0,bt:parseFloat(r[3])||0,
+        ct:parseFloat(r[4])||0,cf:parseFloat(r[5])||0
+      };
+    });
+
+    // HTStatus: VillaCode | TaskCode | Status | Date | PhotoFileId | Note
+    // Upsert: lấy dòng mới nhất theo Date cho mỗi VillaCode+TaskCode
+    HT_STATUS={};
+    const stRows=(rSt.values||[]).slice(1).filter(r=>r[0]&&r[1]);
+    stRows.sort((a,b)=>(b[3]||'').localeCompare(a[3]||''));
+    stRows.forEach(r=>{
+      const key=r[0]+'|'+r[1];
+      if(!HT_STATUS[key])HT_STATUS[key]={
+        villa:r[0],task:r[1],status:r[2]||'none',
+        date:r[3]||'',photoFileId:r[4]||'',note:r[5]||''
+      };
+    });
+
+    htRenderMap();htUpdateSummary();
+    if(htSel)htShowPanel(htSel);
+  }catch(e){
+    // Sheet chưa có → không báo lỗi, chỉ để trống
+    HT_TASKS=[];HT_DINH_MUC={};HT_STATUS={};
+  }
+}
+
+// ════════════════════════════════════════
+// HOÀN THIỆN — MAP
+// ════════════════════════════════════════
+function htGetColor(villaId){
+  if(!HT_TASKS.length)return'#374151';
+  const tasks=HT_TASKS.map(t=>t.code);
+  const done=tasks.filter(c=>HT_STATUS[villaId+'|'+c]&&HT_STATUS[villaId+'|'+c].status==='done').length;
+  const doing=tasks.filter(c=>HT_STATUS[villaId+'|'+c]&&HT_STATUS[villaId+'|'+c].status==='doing').length;
+  if(done===0&&doing===0)return'#374151';
+  if(done===tasks.length)return'#059669';
+  if(doing>0||done>0)return done/tasks.length>=0.5?'#2563eb':'#d97706';
+  return'#374151';
+}
+
+function htGetPct(villaId){
+  if(!HT_TASKS.length)return 0;
+  const done=HT_TASKS.filter(t=>HT_STATUS[villaId+'|'+t.code]&&HT_STATUS[villaId+'|'+t.code].status==='done').length;
+  return Math.round(done/HT_TASKS.length*100);
+}
+
+function htRenderMap(){
+  const g=document.getElementById('ht-pg');if(!g)return;g.innerHTML='';
+  // Setup map bg/img nếu chưa
+  const svg=document.getElementById('ht-map-svg');
+  const w=CUR?CUR.imgW||2000:2000,h=CUR?CUR.imgH||1760:1760;
+  svg.setAttribute('width',w);svg.setAttribute('height',h);svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  document.getElementById('ht-map-bg').setAttribute('width',w);document.getElementById('ht-map-bg').setAttribute('height',h);
+  if(CUR&&CUR.imageUrl){const img=document.getElementById('ht-map-img');img.setAttribute('href',CUR.imageUrl);img.setAttribute('width',w);img.setAttribute('height',h);}
+  Object.entries(COORDS).forEach(([id,pts])=>{
+    const color=htGetColor(id);
+    const pct=htGetPct(id);
+    let opacity=0.82;
+    if(htFilter){
+      const st=HT_STATUS;
+      const tasks=HT_TASKS.map(t=>t.code);
+      const done=tasks.filter(c=>st[id+'|'+c]&&st[id+'|'+c].status==='done').length;
+      const doing=tasks.filter(c=>st[id+'|'+c]&&st[id+'|'+c].status==='doing').length;
+      let curState=done===tasks.length?'done':doing>0||done>0?'doing':'none';
+      opacity=(curState===htFilter)?0.9:0.2;
+    }
+    const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    poly.setAttribute('points',pts);poly.setAttribute('fill',color);poly.setAttribute('opacity',opacity);
+    if(htSel===id){poly.setAttribute('stroke','#fff');poly.setAttribute('stroke-width','4');poly.style.filter='drop-shadow(0 0 8px rgba(255,255,255,.5))';}
+    poly.style.cursor='pointer';poly.style.transition='opacity .1s';
+    poly.addEventListener('mouseenter',()=>{if(htSel!==id)poly.setAttribute('opacity','0.5');});
+    poly.addEventListener('mouseleave',()=>{if(htSel!==id)poly.setAttribute('opacity',opacity);});
+    poly.addEventListener('click',()=>{htSel=id;htRenderMap();htShowPanel(id);});
+    g.appendChild(poly);
+    const pa=pts.split(' ').map(p=>p.split(',').map(Number));
+    const cx=pa.reduce((a,p)=>a+p[0],0)/pa.length,cy=pa.reduce((a,p)=>a+p[1],0)/pa.length;
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',cx);lbl.setAttribute('y',cy);lbl.setAttribute('text-anchor','middle');lbl.setAttribute('dominant-baseline','central');
+    lbl.setAttribute('font-size','7');lbl.setAttribute('font-weight','700');lbl.setAttribute('fill','#fff');lbl.setAttribute('pointer-events','none');
+    lbl.textContent=pct?pct+'%':id;g.appendChild(lbl);
+  });
+  htFitZoom();
+}
+
+let htZlVal=0.7;
+function htFitZoom(){const wrap=document.querySelector('.ht-map');if(!wrap)return;const ww=wrap.clientWidth-4;htZlVal=ww/(CUR?CUR.imgW||2000:2000);htApplyZoom();}
+function htZoom(f){htZlVal=Math.min(5,Math.max(0.1,htZlVal*f));htApplyZoom();}
+function htResetZoom(){htFitZoom();}
+function htApplyZoom(){const mw=document.getElementById('ht-mw');if(mw)mw.style.transform=`scale(${htZlVal})`;}
+
+function htFilterStatus(st){htFilter=(htFilter===st)?null:st;htRenderMap();htUpdateLegend();}
+function htClearFilter(){htFilter=null;htRenderMap();htUpdateLegend();}
+
+function htUpdateLegend(){
+  ['done','doing','none'].forEach(st=>{
+    const el=document.getElementById('ht-leg-'+st);
+    if(el)el.className='lr'+(htFilter&&htFilter!==st?' leg-inactive':htFilter===st?' leg-active':'');
+  });
+}
+
+function htUpdateSummary(){
+  const ids=Object.keys(COORDS);
+  const tasks=HT_TASKS.map(t=>t.code);
+  let done=0,doing=0,none=0;
+  ids.forEach(id=>{
+    const d=tasks.filter(c=>HT_STATUS[id+'|'+c]&&HT_STATUS[id+'|'+c].status==='done').length;
+    const g=tasks.filter(c=>HT_STATUS[id+'|'+c]&&HT_STATUS[id+'|'+c].status==='doing').length;
+    if(d===tasks.length&&tasks.length>0)done++;
+    else if(d>0||g>0)doing++;
+    else none++;
+  });
+  const tot=ids.length;
+  document.getElementById('ht-s-total').textContent=tot;
+  document.getElementById('ht-s-done').textContent=done;
+  document.getElementById('ht-s-doing').textContent=doing;
+  document.getElementById('ht-s-none').textContent=none;
+  document.getElementById('ht-leg-done-cnt').textContent=done;
+  document.getElementById('ht-leg-doing-cnt').textContent=doing;
+  document.getElementById('ht-leg-none-cnt').textContent=none;
+}
+
+// ════════════════════════════════════════
+// HOÀN THIỆN — PANEL PHẢI
+// ════════════════════════════════════════
+function htShowPanel(id){
+  const vi=VI[id]||{};
+  document.getElementById('ht-pe').style.display='none';
+  document.getElementById('ht-pb').classList.add('show');
+  document.getElementById('ht-pz').textContent=id.replace(/-\d+$/,'');
+  document.getElementById('ht-pid').textContent=id;
+  document.getElementById('ht-psub').textContent=vi.type||'—';
+  const tasks=HT_TASKS;
+  const doneCnt=tasks.filter(t=>HT_STATUS[id+'|'+t.code]&&HT_STATUS[id+'|'+t.code].status==='done').length;
+  const tot=tasks.length;
+  const pct=tot?Math.round(doneCnt/tot*100):0;
+  document.getElementById('ht-progress-fill').style.width=pct+'%';
+  document.getElementById('ht-pct-txt').textContent=`${doneCnt} / ${tot} công tác hoàn thành · ${pct}%`;
+
+  // Bảng công tác
+  const tbody=document.getElementById('ht-task-tbody');tbody.innerHTML='';
+  if(!tasks.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:16px">Chưa có HTConfig trong Sheet</td></tr>';
+  }else{
+    tasks.forEach(t=>{
+      const key=id+'|'+t.code;const st=HT_STATUS[key];
+      const dm=HT_DINH_MUC[key]||{m2:0,bt:0,ct:0,cf:0};
+      const status=st?st.status:'none';
+      const badgeCls=status==='done'?'ht-status-done':status==='doing'?'ht-status-doing':'ht-status-none';
+      const badgeTxt=status==='done'?'✅ Xong':status==='doing'?'🔄 Đang TC':'⬜ Chưa';
+      const photoHtml=st&&st.photoFileId
+        ?`<img class="ht-photo-thumb" src="${driveThumbUrl(st.photoFileId,120)}" onclick="openLightbox('${driveThumbUrl(st.photoFileId,1200)}','${id} — ${t.name}','${(st.date||'').replace(/'/g,"\\'")}')">`
+        :`<span style="font-size:11px;color:#cbd5e1">—</span>`;
+      const klStr=dm.m2?`${dm.m2} ${t.unit}`+(dm.bt?` · BT:${dm.bt}m³`:'')+(dm.ct?` · CT:${dm.ct}t`:''):'—';
+      tbody.innerHTML+=`<tr>
+        <td><div class="ht-task-name">${t.name}</div><div class="ht-task-code">${t.code}</div></td>
+        <td class="ht-task-kl">${klStr}</td>
+        <td><span class="ht-status-badge ${badgeCls}">${badgeTxt}</span>${st&&st.date?`<div style="font-size:8px;color:#94a3b8;margin-top:2px">${st.date}</div>`:''}</td>
+        <td>${photoHtml}</td>
+      </tr>`;
+    });
+  }
+
+  // Nút cập nhật
+  const btn=document.getElementById('ht-btn-update');
+  if(btn)btn.style.display=canEdit()?'':'none';
+  htCancelForm();
+}
+
+// ════════════════════════════════════════
+// HOÀN THIỆN — FORM CẬP NHẬT
+// ════════════════════════════════════════
+function htToggleForm(){
+  const form=document.getElementById('ht-form-wrap');
+  const btn=document.getElementById('ht-btn-update');
+  const isOpen=form.style.display!=='none';
+  if(isOpen){htCancelForm();}
+  else{
+    form.style.display='';
+    btn.textContent='▲ Đóng';
+    const sel=document.getElementById('ht-task-sel');
+    sel.innerHTML=HT_TASKS.map(t=>`<option value="${t.code}">${t.name}</option>`).join('');
+    htOnTaskChange();
+    const now=new Date();
+    document.getElementById('ht-date-inp').value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    htSelectedStatus='done';htSetStatus('done');
+  }
+}
+
+function htCancelForm(){
+  const form=document.getElementById('ht-form-wrap');
+  if(form)form.style.display='none';
+  const btn=document.getElementById('ht-btn-update');
+  if(btn)btn.textContent='📝 Cập nhật hoàn thiện';
+  htClearPhoto();
+}
+
+function htSetStatus(st){
+  htSelectedStatus=st;
+  document.getElementById('ht-btn-doing').className='ht-radio-btn'+(st==='doing'?' active-doing':'');
+  document.getElementById('ht-btn-done').className='ht-radio-btn'+(st==='done'?' active-done':'');
+  htOnTaskChange();
+}
+
+function htOnTaskChange(){
+  const taskCode=document.getElementById('ht-task-sel').value;
+  const task=HT_TASKS.find(t=>t.code===taskCode);
+  const dm=htSel&&taskCode?HT_DINH_MUC[htSel+'|'+taskCode]||{m2:0,bt:0,ct:0,cf:0}:{m2:0,bt:0,ct:0,cf:0};
+  const klWrap=document.getElementById('ht-kl-inputs');
+  if(htSelectedStatus==='done'&&task){
+    klWrap.style.display='';
+    document.getElementById('ht-kl-m2').value=dm.m2||'';
+    document.getElementById('ht-kl-bt').value=dm.bt||'';
+    document.getElementById('ht-kl-ct').value=dm.ct||'';
+  }else{klWrap.style.display='none';}
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const tsel=document.getElementById('ht-task-sel');
+  if(tsel)tsel.addEventListener('change',htOnTaskChange);
+});
+
+// Photo HT
+function onHtPhotoSelected(input){
+  const file=input.files[0];if(!file)return;
+  htPhotoFile=file;
+  const url=URL.createObjectURL(file);
+  document.getElementById('ht-photo-preview').src=url;
+  document.getElementById('ht-photo-preview-wrap').style.display='';
+  document.getElementById('ht-upload-area').style.display='none';
+}
+function htClearPhoto(){
+  htPhotoFile=null;
+  const pp=document.getElementById('ht-photo-preview');if(pp)pp.src='';
+  const ppw=document.getElementById('ht-photo-preview-wrap');if(ppw)ppw.style.display='none';
+  const ua=document.getElementById('ht-upload-area');if(ua)ua.style.display='';
+  const pi=document.getElementById('ht-photo-input');if(pi)pi.value='';
+}
+
+async function htSubmit(){
+  if(!htSel||!CUR){toast('Chưa chọn căn','err');return;}
+  if(!authToken){toast('Cần đăng nhập','err');return;}
+  const taskCode=document.getElementById('ht-task-sel').value;
+  const dateVal=document.getElementById('ht-date-inp').value;
+  if(!taskCode||!dateVal){toast('Vui lòng chọn công tác và ngày','err');return;}
+  if(!htPhotoFile){toast('Vui lòng chọn ảnh nghiệm thu','err');return;}
+  const[yr,mo,dy]=dateVal.split('-');const dateStr=`${dy}/${mo}/${yr}`;
+  const btn=document.getElementById('ht-save-btn');btn.disabled=true;btn.textContent='Đang xử lý...';
+  const prog=document.getElementById('ht-upload-prog');const fill=document.getElementById('ht-upload-fill');prog.style.display='';
+  try{
+    // Upload ảnh vào Drive folder HT
+    const folderId=await driveGetVillaFolder(CUR.id+'_HT',htSel);
+    const blob=await compressImage(htPhotoFile);
+    const oldEntry=HT_STATUS[htSel+'|'+taskCode];
+    if(oldEntry&&oldEntry.photoFileId)await driveDeleteFile(oldEntry.photoFileId);
+    fill.style.width='30%';
+    const fileId=await driveUploadPhoto(blob,taskCode+'.jpg',folderId,pct=>{fill.style.width=(30+pct*0.5)+'%';});
+    await driveSetPublic(fileId);fill.style.width='85%';
+    // Ghi HTStatus — upsert (clear row cũ + ghi lại)
+    await htWriteStatus(htSel,taskCode,htSelectedStatus,dateStr,fileId);
+    fill.style.width='100%';
+    // Cập nhật local state
+    HT_STATUS[htSel+'|'+taskCode]={villa:htSel,task:taskCode,status:htSelectedStatus,date:dateStr,photoFileId:fileId,note:''};
+    toast(`✓ ${htSel} — ${taskCode} → ${htSelectedStatus==='done'?'Hoàn thành':'Đang TC'}`);
+    htCancelForm();htShowPanel(htSel);htRenderMap();htUpdateSummary();
+  }catch(e){toast('Lỗi: '+e.message,'err');}
+  finally{btn.disabled=false;btn.textContent='✓ Lưu';prog.style.display='none';fill.style.width='0%';}
+}
+
+async function htWriteStatus(villaId,taskCode,status,dateStr,photoFileId){
+  // Đọc toàn bộ HTStatus → filter bỏ dòng trùng villa+task → ghi lại
+  const existing=await gapi(CUR.sheetId,'HTStatus!A:F');
+  const rows=existing.values||[];
+  const header=rows[0]||['VillaCode','TaskCode','Status','Date','PhotoFileId','Note'];
+  const filtered=rows.filter((r,i)=>i===0||(r[0]!==villaId||r[1]!==taskCode));
+  filtered.push([villaId,taskCode,status,dateStr,photoFileId,'']);
+  if(filtered[0][0]!=='VillaCode')filtered.unshift(header);
+  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/HTStatus!A1:F10000:clear`,{
+    method:'POST',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'}
+  });
+  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/HTStatus!A1:F${filtered.length}?valueInputOption=RAW`,{
+    method:'PUT',
+    headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'},
+    body:JSON.stringify({values:filtered})
+  });
+}
+
+// Pan/Zoom map HT
+(function(){
+  const sc=document.getElementById('ht-ms');if(!sc)return;
+  let drag=false,sx,sy,sl,st;
+  sc.addEventListener('mousedown',e=>{if(['polygon','text'].includes(e.target.tagName))return;drag=true;sx=e.clientX;sy=e.clientY;sl=sc.scrollLeft;st=sc.scrollTop;sc.style.cursor='grabbing';});
+  window.addEventListener('mousemove',e=>{if(!drag)return;sc.scrollLeft=sl-(e.clientX-sx);sc.scrollTop=st-(e.clientY-sy);});
+  window.addEventListener('mouseup',()=>{drag=false;sc.style.cursor='';});
+  sc.addEventListener('wheel',e=>{e.preventDefault();const ww=sc.parentElement.clientWidth-4;const minZ=ww/(window._htW||2000);const r=sc.getBoundingClientRect();const ix=(e.clientX-r.left+sc.scrollLeft)/htZlVal,iy=(e.clientY-r.top+sc.scrollTop)/htZlVal;htZlVal=Math.min(5,Math.max(minZ,htZlVal*(e.deltaY<0?1.15:0.87)));htApplyZoom();sc.scrollLeft=ix*htZlVal-(e.clientX-r.left);sc.scrollTop=iy*htZlVal-(e.clientY-r.top);},{passive:false});
+})();
+
+// ════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════
 edInitSVG(2000,1500);edSetMode('draw');
 loadRegistry();
 </script>
-<div class="app-footer">© 2026 VELA E&C · v7.2 · Lê Trần Anh Toàn</div>
+<div class="app-footer">© 2026 VELA E&C · v7.3 · Lê Trần Anh Toàn</div>
 </body>
 </html>
