@@ -420,8 +420,8 @@ header{background:#111827;border-bottom:1px solid #1e293b;padding:5px 14px;displ
 .ep-copy-btn{font-family:inherit;font-size:9px;padding:3px 8px;border-radius:4px;border:none;background:#3b82f6;color:#fff;cursor:pointer;font-weight:600;white-space:nowrap}
 .ep-copy-btn:hover{background:#2563eb}
 .ep-ht-table{background:#0f172a;border:1px solid #1e293b;border-radius:6px;overflow:hidden;margin-bottom:6px}
-.ep-ht-hdr{display:grid;grid-template-columns:1fr 50px 50px 50px;gap:0;font-size:8px;font-weight:700;color:#475569;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1e293b;background:#111827}
-.ep-ht-row{display:grid;grid-template-columns:1fr 50px 50px 50px;gap:0;border-bottom:1px solid #111827;align-items:center}
+.ep-ht-hdr{display:grid;grid-template-columns:1fr 46px 46px 46px 46px;gap:0;font-size:8px;font-weight:700;color:#475569;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1e293b;background:#111827}
+.ep-ht-row{display:grid;grid-template-columns:1fr 44px 44px 44px 44px;gap:0;border-bottom:1px solid #111827;align-items:center}
 .ep-ht-name{padding:4px 5px;font-size:9px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
 .ep-ht-code{font-size:7px;color:#334155}
 .ep-ht-inp{border:none;border-left:1px solid #1e293b;background:#0f172a;font-size:9px;padding:4px;width:100%;outline:none;text-align:center;color:#e2e8f0;font-family:'JetBrains Mono',monospace}
@@ -449,7 +449,7 @@ header{background:#111827;border-bottom:1px solid #1e293b;padding:5px 14px;displ
 .ed-banner{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.35);border-radius:16px;padding:4px 13px;font-size:9px;color:#fbbf24;font-weight:600;z-index:10;pointer-events:none;white-space:nowrap}
 .ed-sb{position:absolute;bottom:10px;left:10px;background:rgba(10,15,26,.9);border:1px solid #1e293b;border-radius:6px;padding:4px 10px;font-size:9px;color:#64748b;z-index:10;display:flex;gap:8px;align-items:center}
 .ed-zc{position:absolute;bottom:10px;right:10px;display:flex;flex-direction:column;gap:3px;z-index:10}
-.ed-panel{width:280px;flex-shrink:0;background:#111827;border-left:1px solid #1e293b;display:flex;flex-direction:column;overflow:hidden}
+.ed-panel{width:340px;min-width:240px;max-width:650px;flex-shrink:0;background:#111827;border-left:2px solid #334155;display:flex;flex-direction:column;overflow:hidden;resize:horizontal;direction:rtl}.ed-panel>*{direction:ltr}
 .ep-sec{padding:8px 11px;border-bottom:1px solid #1e293b;flex-shrink:0}
 .ep-title{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#475569;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
 .ep-badge{background:rgba(59,130,246,.2);color:#60a5fa;font-size:8px;padding:1px 5px;border-radius:6px;font-weight:700}
@@ -1071,10 +1071,14 @@ option{background:#111827}
             <select class="ep-copy-sel" id="ep-kc-copy-sel"></select>
             <button class="ep-copy-btn" onclick="edCopyKC()">→ Áp dụng</button>
           </div>
-          <div style="padding:6px 8px;font-size:8px;color:#475569;background:#0d1520;flex-shrink:0">
-            Căn đang chọn: <span id="ep-kc-cur-id" style="color:#f59e0b;font-weight:700">— chọn căn từ tab Polygon</span>
+          <div style="padding:6px 8px;font-size:8px;color:#475569;background:#0d1520;flex-shrink:0;display:flex;align-items:center;justify-content:space-between">
+            <span>Căn: <span id="ep-kc-cur-id" style="color:#f59e0b;font-weight:700">— chọn căn từ tab Polygon</span></span>
+            <button onclick="edReloadKCFromSheet()" style="font-family:inherit;font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid #334155;background:transparent;color:#475569;cursor:pointer" title="Tải lại KL KC từ Sheet">↻ Tải Sheet</button>
           </div>
           <div style="padding:6px 8px;flex:1;overflow-y:auto">
+            <div id="ep-kc-no-villa" style="padding:16px;text-align:center;font-size:10px;color:#334155;display:none">
+              ← Chọn căn ở tab <b style="color:#f59e0b">Polygon</b> trước
+            </div>
             <div class="ep-ht-table" id="ep-kc-table">
               <div class="ep-ht-hdr"><span>Mốc</span><span style="text-align:center">BT(m³)</span><span style="text-align:center">CT(tấn)</span><span style="text-align:center">CF(m²)</span></div>
               <div id="ep-kc-rows"></div>
@@ -1090,12 +1094,16 @@ option{background:#111827}
             <select class="ep-copy-sel" id="ep-ht-copy-sel"></select>
             <button class="ep-copy-btn" onclick="edCopyHT()">→ Áp dụng</button>
           </div>
-          <div style="padding:6px 8px;font-size:8px;color:#475569;background:#0d1520;flex-shrink:0">
-            Căn đang chọn: <span id="ep-ht-cur-id" style="color:#0ea5e9;font-weight:700">— chọn căn từ tab Polygon</span>
+          <div style="padding:6px 8px;font-size:8px;color:#475569;background:#0d1520;flex-shrink:0;display:flex;align-items:center;justify-content:space-between">
+            <span>Căn: <span id="ep-ht-cur-id" style="color:#0ea5e9;font-weight:700">— chọn căn từ tab Polygon</span></span>
+            <button onclick="edReloadHTFromSheet()" style="font-family:inherit;font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid #334155;background:transparent;color:#475569;cursor:pointer" title="Tải lại KL HT từ Sheet">↻ Tải Sheet</button>
           </div>
           <div style="padding:6px 8px;flex:1;overflow-y:auto">
+            <div id="ep-ht-no-villa" style="padding:16px;text-align:center;font-size:10px;color:#334155;display:none">
+              ← Chọn căn ở tab <b style="color:#0ea5e9">Polygon</b> trước
+            </div>
             <div class="ep-ht-table" id="ep-ht-kl-table">
-              <div class="ep-ht-hdr"><span>Công tác</span><span style="text-align:center">m²</span><span style="text-align:center">BT</span><span style="text-align:center">CT</span></div>
+              <div class="ep-ht-hdr"><span>Công tác</span><span style="text-align:center">m²</span><span style="text-align:center">BT(m³)</span><span style="text-align:center">CT(kg)</span><span style="text-align:center">CF(m²)</span></div>
               <div id="ep-ht-rows"><div style="padding:12px;text-align:center;font-size:9px;color:#334155">Đang tải HTConfig...</div></div>
             </div>
             <button class="ep-write-ht" onclick="edWriteHTToSheet()" id="ep-write-ht">☁ Ghi HTDinhMuc</button>
@@ -3049,18 +3057,15 @@ function edSwitchSubTab(tab){
 }
 
 function edRefreshKCPane(){
-  // Cập nhật copy selector
   const sel=document.getElementById('ep-kc-copy-sel');
-  if(sel){
-    const ids=Object.keys(edUnits).sort();
-    sel.innerHTML=ids.map(id=>`<option value="${id}">${id}</option>`).join('');
-  }
-  // Hiện căn đang chọn
+  if(sel){const ids=Object.keys(edUnits).sort();sel.innerHTML=ids.map(id=>`<option value="${id}">${id}</option>`).join('');}
   const curEl=document.getElementById('ep-kc-cur-id');
   if(curEl)curEl.textContent=edSelId||'— chọn căn từ tab Polygon';
-  // Build bảng KC nếu chưa có
+  const noV=document.getElementById('ep-kc-no-villa');
+  const tbl=document.getElementById('ep-kc-table');
+  if(noV)noV.style.display=edSelId?'none':'';
+  if(tbl)tbl.style.display=edSelId?'':'none';
   edBuildKCPane();
-  // Load data KC của căn đang chọn
   if(edSelId&&edUnits[edSelId])edLoadKCForVilla(edSelId);
 }
 
@@ -3109,12 +3114,13 @@ function edCopyKC(){
 
 function edRefreshHTPane(){
   const sel=document.getElementById('ep-ht-copy-sel');
-  if(sel){
-    const ids=Object.keys(edUnits).sort();
-    sel.innerHTML=ids.map(id=>`<option value="${id}">${id}</option>`).join('');
-  }
+  if(sel){const ids=Object.keys(edUnits).sort();sel.innerHTML=ids.map(id=>`<option value="${id}">${id}</option>`).join('');}
   const curEl=document.getElementById('ep-ht-cur-id');
   if(curEl)curEl.textContent=edSelId||'— chọn căn từ tab Polygon';
+  const noV=document.getElementById('ep-ht-no-villa');
+  const tbl=document.getElementById('ep-ht-kl-table');
+  if(noV)noV.style.display=edSelId?'none':'';
+  if(tbl)tbl.style.display=edSelId?'':'none';
   edBuildHTPane();
   if(edSelId)edLoadHTForVilla(edSelId);
 }
@@ -3130,9 +3136,10 @@ function edBuildHTPane(){
   HT_TASKS.forEach(task=>{
     const row=document.createElement('div');row.className='ep-ht-row';row.setAttribute('data-task',task.code);
     row.innerHTML=`<div class="ep-ht-name">${task.name}<div class="ep-ht-code">${task.code}</div></div>
-      <input class="ep-ht-inp ep-ht-m2" type="number" placeholder="0" step="0.1">
-      <input class="ep-ht-inp ep-ht-bt" type="number" placeholder="${task.hasBT?'0':'—'}" step="0.01" ${task.hasBT?'':'readonly style="opacity:.3"'}>
-      <input class="ep-ht-inp ep-ht-ct" type="number" placeholder="${task.hasCT?'0':'—'}" step="0.001" ${task.hasCT?'':'readonly style="opacity:.3"'}>`;
+      <input class="ep-ht-inp ep-ht-m2" type="number" placeholder="0" step="0.1" title="m²">
+      <input class="ep-ht-inp ep-ht-bt" type="number" placeholder="${task.hasBT?'0':'—'}" step="0.01" title="BT m³" ${task.hasBT?'':'readonly style="opacity:.3"'}>
+      <input class="ep-ht-inp ep-ht-ct" type="number" placeholder="${task.hasCT?'0':'—'}" step="1" title="CT kg" ${task.hasCT?'':'readonly style="opacity:.3"'}>
+      <input class="ep-ht-inp ep-ht-cf" type="number" placeholder="${task.hasCF?'0':'—'}" step="0.1" title="CF m²" ${task.hasCF?'':'readonly style="opacity:.3"'}>`;
     container.appendChild(row);
   });
 }
@@ -3142,10 +3149,11 @@ function edLoadHTForVilla(id){
   HT_TASKS.forEach(task=>{
     const row=document.querySelector(`#ep-ht-rows .ep-ht-row[data-task="${task.code}"]`);
     if(!row)return;
-    const dm=HT_DINH_MUC[id+'|'+task.code]||{m2:0,bt:0,ct:0};
+    const dm=HT_DINH_MUC[id+'|'+task.code]||{m2:0,bt:0,ct:0,cf:0};
     row.querySelector('.ep-ht-m2').value=dm.m2||'';
     row.querySelector('.ep-ht-bt').value=dm.bt||'';
     row.querySelector('.ep-ht-ct').value=dm.ct||'';
+    row.querySelector('.ep-ht-cf').value=dm.cf||'';
   });
 }
 
@@ -3155,10 +3163,11 @@ function edCopyHT(){
   HT_TASKS.forEach(task=>{
     const row=document.querySelector(`#ep-ht-rows .ep-ht-row[data-task="${task.code}"]`);
     if(!row)return;
-    const dm=HT_DINH_MUC[fromId+'|'+task.code]||{m2:0,bt:0,ct:0};
+    const dm=HT_DINH_MUC[fromId+'|'+task.code]||{m2:0,bt:0,ct:0,cf:0};
     row.querySelector('.ep-ht-m2').value=dm.m2||'';
     row.querySelector('.ep-ht-bt').value=dm.bt||'';
     row.querySelector('.ep-ht-ct').value=dm.ct||'';
+    row.querySelector('.ep-ht-cf').value=dm.cf||'';
   });
   toast(`✓ Đã copy KL HT từ ${fromId}`);
 }
@@ -3254,12 +3263,13 @@ async function edWriteHTToSheet(){
       if(!row)return;
       const m2=parseFloat(row.querySelector('.ep-ht-m2').value)||0;
       const bt=parseFloat(row.querySelector('.ep-ht-bt').value)||0;
-      const ct=parseFloat(row.querySelector('.ep-ht-ct').value)||0;
-      if(m2||bt||ct)newRows.push([edSelId,task.code,m2,bt,ct,0]);
+      const ct=parseFloat(row.querySelector('.ep-ht-ct').value)||0; // kg
+      const cf=parseFloat(row.querySelector('.ep-ht-cf').value)||0;
+      if(m2||bt||ct||cf)newRows.push([edSelId,task.code,m2,bt,ct,cf]);
     });
     const existing=await gapi(CUR.sheetId,'HTDinhMuc!A:F');
     const vals=existing.values||[];
-    const header=vals[0]||['VillaCode','TaskCode','KL_plan','BT_plan','CT_plan','CF_plan'];
+    const header=vals[0]||['VillaCode','TaskCode','KL_plan(m2)','BT_plan(m3)','CT_plan(kg)','CF_plan(m2)'];
     const kept=vals.filter((r,i)=>i===0||r[0]!==edSelId);
     const final=[...kept,...newRows];
     if(final[0][0]!=='VillaCode')final.unshift(header);
@@ -3272,13 +3282,44 @@ async function edWriteHTToSheet(){
       HT_DINH_MUC[edSelId+'|'+task.code]={
         m2:parseFloat(row.querySelector('.ep-ht-m2').value)||0,
         bt:parseFloat(row.querySelector('.ep-ht-bt').value)||0,
-        ct:parseFloat(row.querySelector('.ep-ht-ct').value)||0,cf:0
+        ct:parseFloat(row.querySelector('.ep-ht-ct').value)||0,
+        cf:parseFloat(row.querySelector('.ep-ht-cf').value)||0
       };
     });
     toast(`✓ Đã ghi KL HT của căn ${edSelId}`);
     await loadHTData();
   }catch(e){toast('Lỗi: '+e.message,'err');}
   finally{btn.disabled=false;btn.textContent='☁ Ghi HTDinhMuc';}
+}
+
+// Tải lại KL KC từ Sheet cho căn đang chọn
+async function edReloadKCFromSheet(){
+  if(!edSelId){toast('Chọn căn trước','err');return;}
+  if(!CUR){toast('Chưa chọn dự án','err');return;}
+  try{
+    const data=await gapi(CUR.sheetId,'KLDinhMucKC!A:E');
+    const rows=(data.values||[]).slice(1).filter(r=>r[0]===edSelId);
+    if(edUnits[edSelId]){
+      edUnits[edSelId].klData=rows.map(r=>({code:r[1]||'',bt:parseFloat(r[2])||0,ct:parseFloat(r[3])||0,cf:parseFloat(r[4])||0}));
+    }
+    edBuildKCPane();edLoadKCForVilla(edSelId);
+    toast(`✓ Đã tải KL KC của ${edSelId} từ Sheet`);
+  }catch(e){toast('Lỗi: '+e.message,'err');}
+}
+
+// Tải lại KL HT từ Sheet cho căn đang chọn
+async function edReloadHTFromSheet(){
+  if(!edSelId){toast('Chọn căn trước','err');return;}
+  if(!CUR){toast('Chưa chọn dự án','err');return;}
+  try{
+    const data=await gapi(CUR.sheetId,'HTDinhMuc!A:F');
+    const rows=(data.values||[]).slice(1).filter(r=>r[0]===edSelId);
+    rows.forEach(r=>{
+      if(r[1])HT_DINH_MUC[edSelId+'|'+r[1]]={m2:parseFloat(r[2])||0,bt:parseFloat(r[3])||0,ct:parseFloat(r[4])||0,cf:parseFloat(r[5])||0};
+    });
+    edBuildHTPane();edLoadHTForVilla(edSelId);
+    toast(`✓ Đã tải KL HT của ${edSelId} từ Sheet`);
+  }catch(e){toast('Lỗi: '+e.message,'err');}
 }
 
 // ════════════════════════════════════════
