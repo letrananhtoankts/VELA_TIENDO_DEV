@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>VELA E&C — Theo dõi tiến độ v7.3</title>
+<title>VELA E&C — Theo dõi tiến độ v7.4</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -404,6 +404,37 @@ header{background:#111827;border-bottom:1px solid #1e293b;padding:5px 14px;displ
 .ht-preview-wrap{position:relative;margin-bottom:6px}
 .ht-preview-img{width:100%;max-height:100px;object-fit:cover;border-radius:6px;display:block}
 .ht-preview-clr{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;font-family:inherit}
+
+/* ── EDITOR SUB-TABS ── */
+.ep-subtabs{display:flex;gap:2px;padding:5px 6px;background:#0d1520;border-bottom:1px solid #1e293b;flex-shrink:0}
+.ep-subtab{flex:1;font-family:inherit;font-size:9px;font-weight:600;padding:5px 4px;border-radius:5px;border:none;background:transparent;color:#475569;cursor:pointer;transition:all .15s;text-align:center}
+.ep-subtab.active{background:#1e293b;color:#f1f5f9}
+.ep-subtab:hover:not(.active){color:#94a3b8}
+.ep-subpane{display:none;flex-direction:column;flex:1;overflow-y:auto;min-height:0}
+.ep-subpane.active{display:flex}
+.ep-subpane::-webkit-scrollbar{width:2px}
+.ep-subpane::-webkit-scrollbar-thumb{background:#1e293b}
+.ep-copy-bar{display:flex;align-items:center;gap:4px;padding:5px 8px;background:#0f172a;border-bottom:1px solid #1e293b;flex-shrink:0}
+.ep-copy-label{font-size:8px;color:#475569;white-space:nowrap}
+.ep-copy-sel{flex:1;background:#111827;border:1px solid #1e293b;border-radius:4px;padding:3px 5px;font-size:9px;color:#94a3b8;font-family:inherit;outline:none;cursor:pointer}
+.ep-copy-btn{font-family:inherit;font-size:9px;padding:3px 8px;border-radius:4px;border:none;background:#3b82f6;color:#fff;cursor:pointer;font-weight:600;white-space:nowrap}
+.ep-copy-btn:hover{background:#2563eb}
+.ep-ht-table{background:#0f172a;border:1px solid #1e293b;border-radius:6px;overflow:hidden;margin-bottom:6px}
+.ep-ht-hdr{display:grid;grid-template-columns:1fr 50px 50px 50px;gap:0;font-size:8px;font-weight:700;color:#475569;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1e293b;background:#111827}
+.ep-ht-row{display:grid;grid-template-columns:1fr 50px 50px 50px;gap:0;border-bottom:1px solid #111827;align-items:center}
+.ep-ht-name{padding:4px 5px;font-size:9px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
+.ep-ht-code{font-size:7px;color:#334155}
+.ep-ht-inp{border:none;border-left:1px solid #1e293b;background:#0f172a;font-size:9px;padding:4px;width:100%;outline:none;text-align:center;color:#e2e8f0;font-family:'JetBrains Mono',monospace}
+.ep-ht-inp:focus{background:#1e293b}
+.ep-write-poly{background:var(--gold);color:#111827;font-family:inherit;font-size:12px;padding:9px;font-weight:700;border:none;border-radius:6px;cursor:pointer;width:100%;letter-spacing:.02em;margin-top:4px}
+.ep-write-poly:hover{background:#d4974a}
+.ep-write-poly:disabled{background:#1e293b;color:#475569;cursor:not-allowed}
+.ep-write-kc{background:#10b981;color:#fff;font-family:inherit;font-size:12px;padding:9px;font-weight:700;border:none;border-radius:6px;cursor:pointer;width:100%;margin-top:4px}
+.ep-write-kc:hover{background:#059669}
+.ep-write-kc:disabled{background:#1e293b;color:#475569;cursor:not-allowed}
+.ep-write-ht{background:#0ea5e9;color:#fff;font-family:inherit;font-size:12px;padding:9px;font-weight:700;border:none;border-radius:6px;cursor:pointer;width:100%;margin-top:4px}
+.ep-write-ht:hover{background:#0284c7}
+.ep-write-ht:disabled{background:#1e293b;color:#475569;cursor:not-allowed}
 
 #tab-editor{background:#0d1520}
 .ed-wrap{display:flex;flex:1;overflow:hidden;min-height:0}
@@ -1000,35 +1031,74 @@ option{background:#111827}
         <div class="ed-zc"><div class="zb" onclick="edZoom(1.2)">+</div><div class="zb" onclick="edZoom(0.83)">−</div><div class="zb" onclick="edFitZoom()" style="font-size:8px">FIT</div></div>
       </div>
       <div class="ed-panel">
-        <div class="ep-sec">
-          <div class="ep-title">Thông tin căn <span class="ep-badge" id="ep-cnt">0</span><span class="ep-edit-badge" id="ep-edit-badge" style="display:none">✏️ ĐANG SỬA</span></div>
-          <div class="efl">Mã căn (ID)</div><input class="efi" id="ep-id" placeholder="SD10-5, DV18-1 ...">
-          <div class="efl">Loại căn</div>
-          <select class="efi" id="ep-type"><option value="Biệt thự vườn">Biệt thự vườn</option><option value="Dinh thự đồi">Dinh thự đồi</option><option value="Dinh thự đồi góc">Dinh thự đồi góc</option></select>
-          <div style="display:flex;gap:4px"><div style="flex:1"><div class="efl">Diện tích</div><input class="efi" id="ep-area" placeholder="160 m²"></div><div style="flex:1"><div class="efl">Image URL</div><input class="efi" id="ep-imgurl" placeholder="https://..."></div></div>
-          <div class="efl" style="margin-top:6px;margin-bottom:4px">KL dự toán cộng dồn theo mốc (m³ / tấn / m²)</div>
-          <div id="ep-kl-table" style="background:#0f172a;border:1px solid #1e293b;border-radius:6px;overflow:hidden;margin-bottom:6px">
-            <div style="display:grid;grid-template-columns:1fr 60px 60px 60px;gap:0;font-size:8px;font-weight:700;color:#475569;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1e293b;background:#111827">
-              <span>Mốc</span><span style="text-align:center">BT</span><span style="text-align:center">CT</span><span style="text-align:center">CF</span>
+        <!-- SUB-TABS -->
+        <div class="ep-subtabs">
+          <button class="ep-subtab active" id="ep-st-poly" onclick="edSwitchSubTab('poly')">🗺 Polygon</button>
+          <button class="ep-subtab" id="ep-st-kc" onclick="edSwitchSubTab('kc')">📐 KL KC</button>
+          <button class="ep-subtab" id="ep-st-ht" onclick="edSwitchSubTab('ht')">🏗 KL HT</button>
+        </div>
+
+        <!-- PANE 1: POLYGON -->
+        <div class="ep-subpane active" id="ep-pane-poly">
+          <div class="ep-sec" style="flex-shrink:0">
+            <div class="ep-title">Thông tin căn <span class="ep-badge" id="ep-cnt">0</span><span class="ep-edit-badge" id="ep-edit-badge" style="display:none">✏️ ĐANG SỬA</span></div>
+            <div class="efl">Mã căn (ID)</div><input class="efi" id="ep-id" placeholder="SD10-5, DV18-1 ...">
+            <div class="efl">Loại căn</div>
+            <select class="efi" id="ep-type"><option value="Biệt thự vườn">Biệt thự vườn</option><option value="Dinh thự đồi">Dinh thự đồi</option><option value="Dinh thự đồi góc">Dinh thự đồi góc</option></select>
+            <div style="display:flex;gap:4px"><div style="flex:1"><div class="efl">Diện tích</div><input class="efi" id="ep-area" placeholder="160 m²"></div><div style="flex:1"><div class="efl">Image URL</div><input class="efi" id="ep-imgurl" placeholder="https://..."></div></div>
+            <div class="epts"><div><span class="eptsn" id="ep-ptsc">0</span><span style="font-size:9px;color:#475569"> điểm</span></div><div class="eptsh" id="ep-ptsh">Click bản đồ để bắt đầu vẽ</div></div>
+            <div class="ep-btns">
+              <button class="epbtn epbtn-s" id="ep-save" disabled onclick="edSaveUnit()">✓ Lưu căn</button>
+              <button class="epbtn epbtn-c" id="ep-cancel-edit" onclick="edCancelEdit()" style="display:none;border-color:#3b82f6;color:#60a5fa">↩ Hủy sửa</button>
+              <button class="epbtn epbtn-c" id="ep-cancel-draw" onclick="edCancel()">✕ Hủy</button>
             </div>
-            <div id="ep-kl-rows" style="max-height:160px;overflow-y:auto"></div>
           </div>
-          <div class="epts"><div><span class="eptsn" id="ep-ptsc">0</span><span style="font-size:9px;color:#475569"> điểm</span></div><div class="eptsh" id="ep-ptsh">Click bản đồ để bắt đầu vẽ</div></div>
-          <div class="ep-btns">
-            <button class="epbtn epbtn-s" id="ep-save" disabled onclick="edSaveUnit()">✓ Lưu</button>
-            <button class="epbtn epbtn-c" id="ep-cancel-edit" onclick="edCancelEdit()" style="display:none;border-color:#3b82f6;color:#60a5fa">↩ Hủy sửa</button>
-            <button class="epbtn epbtn-c" id="ep-cancel-draw" onclick="edCancel()">✕ Hủy</button>
+          <div class="ep-sec" style="padding-bottom:4px;flex-shrink:0">
+            <div class="ep-title">Danh sách căn <span class="ep-badge" id="ep-list-cnt">0</span></div>
+          </div>
+          <div class="ep-list" id="ep-list" style="flex:1;overflow-y:auto"><div class="ep-empty">🏗️<br>Chưa có căn nào</div></div>
+          <div style="padding:8px 11px;border-top:1px solid #1e293b;flex-shrink:0">
+            <div class="efl" style="margin-bottom:3px">Export → MapConfig Sheet</div>
+            <textarea class="ep-exparea" id="ep-exparea" readonly placeholder="Code xuất ở đây..."></textarea>
+            <button class="ep-write-poly" onclick="edWritePolyToSheet()" id="ep-write-poly">☁ Ghi MapConfig + VillaInfo</button>
           </div>
         </div>
-        <div class="ep-sec" style="padding-bottom:4px">
-          <div class="ep-title">Danh sách căn <span class="ep-badge" id="ep-list-cnt">0</span></div>
+
+        <!-- PANE 2: KL KC -->
+        <div class="ep-subpane" id="ep-pane-kc">
+          <div class="ep-copy-bar" style="flex-shrink:0">
+            <span class="ep-copy-label">Copy từ căn:</span>
+            <select class="ep-copy-sel" id="ep-kc-copy-sel"></select>
+            <button class="ep-copy-btn" onclick="edCopyKC()">→ Áp dụng</button>
+          </div>
+          <div style="padding:6px 8px;font-size:8px;color:#475569;background:#0d1520;flex-shrink:0">
+            Căn đang chọn: <span id="ep-kc-cur-id" style="color:#f59e0b;font-weight:700">— chọn căn từ tab Polygon</span>
+          </div>
+          <div style="padding:6px 8px;flex:1;overflow-y:auto">
+            <div class="ep-ht-table" id="ep-kc-table">
+              <div class="ep-ht-hdr"><span>Mốc</span><span style="text-align:center">BT(m³)</span><span style="text-align:center">CT(tấn)</span><span style="text-align:center">CF(m²)</span></div>
+              <div id="ep-kc-rows"></div>
+            </div>
+            <button class="ep-write-kc" onclick="edWriteKCToSheet()" id="ep-write-kc">☁ Ghi KLDinhMucKC</button>
+          </div>
         </div>
-        <div class="ep-list" id="ep-list"><div class="ep-empty">🏗️<br>Chưa có căn nào</div></div>
-        <div class="ep-export">
-          <div class="efl" style="margin-bottom:3px">Export → paste vào MapConfig Sheet</div>
-          <textarea class="ep-exparea" id="ep-exparea" readonly placeholder="Code xuất ở đây..."></textarea>
-          <div class="ep-exprow">
-            <button class="epbtn epbtn-s" onclick="edWriteToSheet()" id="ep-write" style="width:100%;font-size:13px;padding:10px;font-weight:700;letter-spacing:.03em">☁ Ghi Sheet</button>
+
+        <!-- PANE 3: KL HT -->
+        <div class="ep-subpane" id="ep-pane-ht">
+          <div class="ep-copy-bar" style="flex-shrink:0">
+            <span class="ep-copy-label">Copy từ căn:</span>
+            <select class="ep-copy-sel" id="ep-ht-copy-sel"></select>
+            <button class="ep-copy-btn" onclick="edCopyHT()">→ Áp dụng</button>
+          </div>
+          <div style="padding:6px 8px;font-size:8px;color:#475569;background:#0d1520;flex-shrink:0">
+            Căn đang chọn: <span id="ep-ht-cur-id" style="color:#0ea5e9;font-weight:700">— chọn căn từ tab Polygon</span>
+          </div>
+          <div style="padding:6px 8px;flex:1;overflow-y:auto">
+            <div class="ep-ht-table" id="ep-ht-kl-table">
+              <div class="ep-ht-hdr"><span>Công tác</span><span style="text-align:center">m²</span><span style="text-align:center">BT</span><span style="text-align:center">CT</span></div>
+              <div id="ep-ht-rows"><div style="padding:12px;text-align:center;font-size:9px;color:#334155">Đang tải HTConfig...</div></div>
+            </div>
+            <button class="ep-write-ht" onclick="edWriteHTToSheet()" id="ep-write-ht">☁ Ghi HTDinhMuc</button>
           </div>
         </div>
       </div>
@@ -1351,7 +1421,7 @@ function switchTab(t){
   document.querySelectorAll('.h-tab').forEach(e=>e.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
   document.getElementById('htab-'+t).classList.add('active');
-  if(t==='editor'){edResetForProject();setTimeout(edBuildKLTable,500);}
+  if(t==='editor'){edResetForProject();setTimeout(()=>{edBuildKLTable();edBuildKCPane();edBuildHTPane();},500);}
   if(t==='hoanThien'){
     // Render map HT nếu đã có data
     if(CUR&&Object.keys(COORDS).length)htRenderMap();
@@ -2041,6 +2111,13 @@ function edResetForProject(){
   edUnits={};edPolyL.innerHTML='';edImgL.innerHTML='';edColorIdx=0;edSelId=null;edEditingId=null;
   const newBg=edNs('rect');newBg.setAttribute('fill','#1e293b');newBg.setAttribute('width',edW);newBg.setAttribute('height',edH);edImgL.appendChild(newBg);
   edCancel();edCancelEditUI();edRenderList();edUpdateExp();
+  // Reset về sub-tab poly
+  edSwitchSubTab('poly');
+  // Reset HT pane để rebuild khi mở lại
+  const htRows=document.getElementById('ep-ht-rows');
+  if(htRows)htRows.innerHTML='<div style="padding:12px;text-align:center;font-size:9px;color:#334155">Đang tải HTConfig...</div>';
+  const kcRows=document.getElementById('ep-kc-rows');
+  if(kcRows)kcRows.innerHTML='';
   if(CUR&&CUR.imageUrl){
     const ovl=document.getElementById('ed-ovl');
     const w=CUR.imgW||2000,h=CUR.imgH||1760;
@@ -2185,8 +2262,21 @@ function edRenderList(){
     const u=edUnits[id];const d=document.createElement('div');
     d.className='ep-item'+(edSelId===id?' ep-sel':'')+(edEditingId===id?' ep-editing':'');
     d.innerHTML=`<div class="ep-ico" style="background:${u.color}"></div><div style="flex:1;min-width:0"><div class="ep-id">${id}</div><div class="ep-type">${u.type}${u.area?' · '+u.area+' m²':''}</div></div><span class="ep-pts">${u.pts.length}pt</span><button class="ep-edit" title="Chỉnh sửa căn ${id}" onclick="edEditUnit('${id}',event)">✏️</button><button class="ep-del" onclick="edDelUnit('${id}',event)">✕</button>`;
+    d.addEventListener('click',()=>{
+      edSelId=id;
+      edRenderList();
+      // Cập nhật pane KC/HT nếu đang mở
+      if(edCurSubTab==='kc')edLoadKCForVilla(id);
+      if(edCurSubTab==='ht')edLoadHTForVilla(id);
+    });
     ul.appendChild(d);
   });
+  // Cập nhật copy selectors
+  const kcSel=document.getElementById('ep-kc-copy-sel');
+  const htSel=document.getElementById('ep-ht-copy-sel');
+  const opts=ids.map(id=>`<option value="${id}">${id}</option>`).join('');
+  if(kcSel)kcSel.innerHTML=opts;
+  if(htSel)htSel.innerHTML=opts;
 }
 
 function edDelUnit(id,e){e.stopPropagation();if(!confirm(`Xóa căn ${id}?`))return;delete edUnits[id];const el=document.getElementById('eu-'+id);if(el)el.remove();if(edEditingId===id){edEditingId=null;edCancelEditUI();}edRenderList();edUpdateExp();}
@@ -2235,46 +2325,7 @@ function edUpdateExp(){
   document.getElementById('ep-exparea').value=ids.length?`const COORDS={\n${lines.join(',\n')}\n};`:'';
 }
 
-async function edWriteToSheet(){
-  if(!authToken){toast('Cần đăng nhập để ghi Sheet','err');return;}
-  if(!CUR){toast('Chưa chọn dự án','err');return;}
-  const ids=Object.keys(edUnits).sort();
-  if(!ids.length){toast('Chưa có căn nào để ghi','err');return;}
-  try{
-    const btn=document.getElementById('ep-write');btn.textContent='Đang ghi...';btn.disabled=true;
-    const idSet=new Set(ids);
-    const existMap=await gapi(CUR.sheetId,'MapConfig!A:B');
-    const mapVals=existMap.values||[];
-    const keptMap=mapVals.filter((row,i)=>i===0||!idSet.has(row[0]));
-    const newMapRows=ids.map(id=>{const u=edUnits[id];const pts=u.pts.map(p=>`${Math.round(p.x*10)/10},${Math.round(p.y*10)/10}`).join(' ');return[id,pts];});
-    const newMap=[...keptMap,...newMapRows];
-    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/MapConfig!A1:B10000:clear`,{method:'POST',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'}});
-    if(newMap.length){await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/MapConfig!A1:B${newMap.length}?valueInputOption=RAW`,{method:'PUT',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'},body:JSON.stringify({values:newMap})}).then(r=>r.json());}
-    const existVI=await gapi(CUR.sheetId,'VillaInfo!A:E');
-    const viVals=existVI.values||[];
-    const keptVI=viVals.filter((row,i)=>i===0||!idSet.has(row[0]));
-    const newVIRows=ids.map(id=>{const u=edUnits[id];const ut=UNIT_TYPES.find(t=>t.name===u.type||t.code===u.type);const sub=ut?ut.nameEN:'';return[id,u.type,sub,u.area||'',u.imgurl||''];});
-    const newVI=[...keptVI,...newVIRows];
-    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/VillaInfo!A1:E10000:clear`,{method:'POST',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'}});
-    if(newVI.length){await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/VillaInfo!A1:E${newVI.length}?valueInputOption=RAW`,{method:'PUT',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'},body:JSON.stringify({values:newVI})}).then(r=>r.json());}
-    try{
-      const existKL=await gapi(CUR.sheetId,'KLDinhMucKC!A:E');
-      const klVals=existKL.values||[];
-      const keptKL=klVals.filter((row,i)=>i===0||!idSet.has(row[0]));
-      const newKLRows=[];
-      ids.forEach(id=>{const u=edUnits[id];if(u.klData&&u.klData.length){u.klData.forEach(kl=>{if(kl.bt||kl.ct||kl.cf)newKLRows.push([id,kl.code,kl.bt,kl.ct,kl.cf]);});}});
-      const idsWithNewKL=new Set(newKLRows.map(r=>r[0]));
-      const idsWithoutNewKL=ids.filter(id=>!idsWithNewKL.has(id));
-      const keepOldKL=klVals.filter((row,i)=>i>0&&idsWithoutNewKL.includes(row[0]));
-      const newKL=[...keptKL,...keepOldKL,...newKLRows];
-      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/KLDinhMucKC!A1:E10000:clear`,{method:'POST',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'}});
-      if(newKL.length){await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/KLDinhMucKC!A1:E${newKL.length}?valueInputOption=USER_ENTERED`,{method:'PUT',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'},body:JSON.stringify({values:newKL})}).then(r=>r.json());}
-    }catch(e){toast('Lỗi ghi KLDinhMucKC: '+e.message,'err');}
-    toast(`✓ Đã cập nhật ${ids.length} căn`);
-    await loadProjectData();
-  }catch(e){toast('Lỗi ghi Sheet: '+e.message,'err');}
-  finally{const btn=document.getElementById('ep-write');btn.textContent='☁ Ghi Sheet';btn.disabled=false;}
-}
+async function edWriteToSheet(){return edWritePolyToSheet();}
 
 const ED_BN={draw:'✏️ VẼ — Click từng góc · Double-click đóng hình',pan:'✋ DI CHUYỂN — Kéo/Scroll',sel:'🔲 CHỌN'};
 function edSetMode(m){edMode=m;document.querySelectorAll('.etb').forEach(t=>t.classList.remove('active'));const tb=document.getElementById('etb-'+m);if(tb)tb.classList.add('active');edCs.style.cursor=m==='pan'?'grab':'crosshair';document.getElementById('ed-banner').textContent=ED_BN[m]||ED_BN.draw;document.getElementById('ed-mode').textContent={draw:'VẼ',pan:'PAN',sel:'CHỌN'}[m]||m;}
@@ -2981,11 +3032,261 @@ async function htWriteStatus(villaId,taskCode,status,dateStr,photoFileId){
 })();
 
 // ════════════════════════════════════════
+// EDITOR SUB-TABS
+// ════════════════════════════════════════
+let edCurSubTab='poly';
+// KL HT data per villa: {villaId: {taskCode: {m2,bt,ct}}}
+let edHTData={};
+
+function edSwitchSubTab(tab){
+  edCurSubTab=tab;
+  ['poly','kc','ht'].forEach(t=>{
+    document.getElementById('ep-st-'+t).classList.toggle('active',t===tab);
+    document.getElementById('ep-pane-'+t).classList.toggle('active',t===tab);
+  });
+  if(tab==='kc'){edRefreshKCPane();}
+  if(tab==='ht'){edRefreshHTPane();}
+}
+
+function edRefreshKCPane(){
+  // Cập nhật copy selector
+  const sel=document.getElementById('ep-kc-copy-sel');
+  if(sel){
+    const ids=Object.keys(edUnits).sort();
+    sel.innerHTML=ids.map(id=>`<option value="${id}">${id}</option>`).join('');
+  }
+  // Hiện căn đang chọn
+  const curEl=document.getElementById('ep-kc-cur-id');
+  if(curEl)curEl.textContent=edSelId||'— chọn căn từ tab Polygon';
+  // Build bảng KC nếu chưa có
+  edBuildKCPane();
+  // Load data KC của căn đang chọn
+  if(edSelId&&edUnits[edSelId])edLoadKCForVilla(edSelId);
+}
+
+function edBuildKCPane(){
+  const container=document.getElementById('ep-kc-rows');if(!container)return;
+  if(container.children.length===MS_CODES.length)return; // đã build
+  container.innerHTML='';
+  MS_CODES.forEach((code,i)=>{
+    const name=MS[i]||code;
+    const row=document.createElement('div');row.className='ep-ht-row';row.setAttribute('data-ms',code);
+    row.innerHTML=`<div class="ep-ht-name">${name}<div class="ep-ht-code">${code}</div></div>
+      <input class="ep-ht-inp ep-kc-bt" type="number" placeholder="0" step="0.01">
+      <input class="ep-ht-inp ep-kc-ct" type="number" placeholder="0" step="0.001">
+      <input class="ep-ht-inp ep-kc-cf" type="number" placeholder="0" step="0.1">`;
+    container.appendChild(row);
+  });
+}
+
+function edLoadKCForVilla(id){
+  const u=edUnits[id];if(!u)return;
+  document.getElementById('ep-kc-cur-id').textContent=id;
+  MS_CODES.forEach((code,i)=>{
+    const row=document.querySelector(`#ep-kc-rows .ep-ht-row[data-ms="${code}"]`);
+    if(!row)return;
+    const kl=u.klData?u.klData.find(k=>k.code===code):null;
+    row.querySelector('.ep-kc-bt').value=kl?kl.bt||'':'';
+    row.querySelector('.ep-kc-ct').value=kl?kl.ct||'':'';
+    row.querySelector('.ep-kc-cf').value=kl?kl.cf||'':'';
+  });
+}
+
+function edCopyKC(){
+  const fromId=document.getElementById('ep-kc-copy-sel').value;
+  if(!fromId||!edUnits[fromId]){toast('Chọn căn để copy','err');return;}
+  const u=edUnits[fromId];
+  MS_CODES.forEach((code)=>{
+    const row=document.querySelector(`#ep-kc-rows .ep-ht-row[data-ms="${code}"]`);
+    if(!row)return;
+    const kl=u.klData?u.klData.find(k=>k.code===code):null;
+    row.querySelector('.ep-kc-bt').value=kl?kl.bt||'':'';
+    row.querySelector('.ep-kc-ct').value=kl?kl.ct||'':'';
+    row.querySelector('.ep-kc-cf').value=kl?kl.cf||'':'';
+  });
+  toast(`✓ Đã copy KL KC từ ${fromId}`);
+}
+
+function edRefreshHTPane(){
+  const sel=document.getElementById('ep-ht-copy-sel');
+  if(sel){
+    const ids=Object.keys(edUnits).sort();
+    sel.innerHTML=ids.map(id=>`<option value="${id}">${id}</option>`).join('');
+  }
+  const curEl=document.getElementById('ep-ht-cur-id');
+  if(curEl)curEl.textContent=edSelId||'— chọn căn từ tab Polygon';
+  edBuildHTPane();
+  if(edSelId)edLoadHTForVilla(edSelId);
+}
+
+function edBuildHTPane(){
+  const container=document.getElementById('ep-ht-rows');if(!container)return;
+  if(!HT_TASKS.length){
+    container.innerHTML='<div style="padding:12px;text-align:center;font-size:9px;color:#334155">HTConfig chưa có dữ liệu<br><span style="color:#475569">Khai báo trong Sheet HTConfig trước</span></div>';
+    return;
+  }
+  if(container.children.length===HT_TASKS.length)return;
+  container.innerHTML='';
+  HT_TASKS.forEach(task=>{
+    const row=document.createElement('div');row.className='ep-ht-row';row.setAttribute('data-task',task.code);
+    row.innerHTML=`<div class="ep-ht-name">${task.name}<div class="ep-ht-code">${task.code}</div></div>
+      <input class="ep-ht-inp ep-ht-m2" type="number" placeholder="0" step="0.1">
+      <input class="ep-ht-inp ep-ht-bt" type="number" placeholder="${task.hasBT?'0':'—'}" step="0.01" ${task.hasBT?'':'readonly style="opacity:.3"'}>
+      <input class="ep-ht-inp ep-ht-ct" type="number" placeholder="${task.hasCT?'0':'—'}" step="0.001" ${task.hasCT?'':'readonly style="opacity:.3"'}>`;
+    container.appendChild(row);
+  });
+}
+
+function edLoadHTForVilla(id){
+  document.getElementById('ep-ht-cur-id').textContent=id;
+  HT_TASKS.forEach(task=>{
+    const row=document.querySelector(`#ep-ht-rows .ep-ht-row[data-task="${task.code}"]`);
+    if(!row)return;
+    const dm=HT_DINH_MUC[id+'|'+task.code]||{m2:0,bt:0,ct:0};
+    row.querySelector('.ep-ht-m2').value=dm.m2||'';
+    row.querySelector('.ep-ht-bt').value=dm.bt||'';
+    row.querySelector('.ep-ht-ct').value=dm.ct||'';
+  });
+}
+
+function edCopyHT(){
+  const fromId=document.getElementById('ep-ht-copy-sel').value;
+  if(!fromId){toast('Chọn căn để copy','err');return;}
+  HT_TASKS.forEach(task=>{
+    const row=document.querySelector(`#ep-ht-rows .ep-ht-row[data-task="${task.code}"]`);
+    if(!row)return;
+    const dm=HT_DINH_MUC[fromId+'|'+task.code]||{m2:0,bt:0,ct:0};
+    row.querySelector('.ep-ht-m2').value=dm.m2||'';
+    row.querySelector('.ep-ht-bt').value=dm.bt||'';
+    row.querySelector('.ep-ht-ct').value=dm.ct||'';
+  });
+  toast(`✓ Đã copy KL HT từ ${fromId}`);
+}
+
+// ════════════════════════════════════════
+// EDITOR — GHI SHEET RIÊNG
+// ════════════════════════════════════════
+
+// Nút 1: Ghi MapConfig + VillaInfo
+async function edWritePolyToSheet(){
+  if(!authToken){toast('Cần đăng nhập','err');return;}
+  if(!CUR){toast('Chưa chọn dự án','err');return;}
+  const ids=Object.keys(edUnits).sort();
+  if(!ids.length){toast('Chưa có căn nào','err');return;}
+  const btn=document.getElementById('ep-write-poly');
+  btn.disabled=true;btn.textContent='Đang ghi...';
+  try{
+    const idSet=new Set(ids);
+    // MapConfig
+    const existMap=await gapi(CUR.sheetId,'MapConfig!A:B');
+    const mapVals=existMap.values||[];
+    const keptMap=mapVals.filter((r,i)=>i===0||!idSet.has(r[0]));
+    const newMapRows=ids.map(id=>{const u=edUnits[id];const pts=u.pts.map(p=>`${Math.round(p.x*10)/10},${Math.round(p.y*10)/10}`).join(' ');return[id,pts];});
+    const newMap=[...keptMap,...newMapRows];
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/MapConfig!A1:B10000:clear`,{method:'POST',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'}});
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/MapConfig!A1:B${newMap.length}?valueInputOption=RAW`,{method:'PUT',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'},body:JSON.stringify({values:newMap})});
+    // VillaInfo
+    const existVI=await gapi(CUR.sheetId,'VillaInfo!A:E');
+    const viVals=existVI.values||[];
+    const keptVI=viVals.filter((r,i)=>i===0||!idSet.has(r[0]));
+    const newVIRows=ids.map(id=>{const u=edUnits[id];const ut=UNIT_TYPES.find(t=>t.name===u.type||t.code===u.type);return[id,u.type,ut?ut.nameEN:'',u.area||'',u.imgurl||''];});
+    const newVI=[...keptVI,...newVIRows];
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/VillaInfo!A1:E10000:clear`,{method:'POST',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'}});
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/VillaInfo!A1:E${newVI.length}?valueInputOption=RAW`,{method:'PUT',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'},body:JSON.stringify({values:newVI})});
+    toast(`✓ Đã ghi MapConfig + VillaInfo (${ids.length} căn)`);
+    await loadProjectData();
+  }catch(e){toast('Lỗi: '+e.message,'err');}
+  finally{btn.disabled=false;btn.textContent='☁ Ghi MapConfig + VillaInfo';}
+}
+
+// Nút 2: Ghi KLDinhMucKC (chỉ căn đang chọn)
+async function edWriteKCToSheet(){
+  if(!authToken){toast('Cần đăng nhập','err');return;}
+  if(!CUR){toast('Chưa chọn dự án','err');return;}
+  if(!edSelId){toast('Chọn căn ở tab Polygon trước','err');return;}
+  const btn=document.getElementById('ep-write-kc');
+  btn.disabled=true;btn.textContent='Đang ghi...';
+  try{
+    // Đọc các giá trị từ input KC
+    const newRows=[];
+    MS_CODES.forEach(code=>{
+      const row=document.querySelector(`#ep-kc-rows .ep-ht-row[data-ms="${code}"]`);
+      if(!row)return;
+      const bt=parseFloat(row.querySelector('.ep-kc-bt').value)||0;
+      const ct=parseFloat(row.querySelector('.ep-kc-ct').value)||0;
+      const cf=parseFloat(row.querySelector('.ep-kc-cf').value)||0;
+      if(bt||ct||cf)newRows.push([edSelId,code,bt,ct,cf]);
+    });
+    // Upsert: giữ các dòng của căn khác, thay dòng của căn này
+    const existing=await gapi(CUR.sheetId,'KLDinhMucKC!A:E');
+    const vals=existing.values||[];
+    const header=vals[0]||['VillaCode','MilestoneCode','BT','CT','CF'];
+    const kept=vals.filter((r,i)=>i===0||r[0]!==edSelId);
+    const final=[...kept,...newRows];
+    if(final[0][0]!=='VillaCode')final.unshift(header);
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/KLDinhMucKC!A1:E10000:clear`,{method:'POST',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'}});
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/KLDinhMucKC!A1:E${final.length}?valueInputOption=USER_ENTERED`,{method:'PUT',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'},body:JSON.stringify({values:final})});
+    // Cập nhật edUnits.klData
+    if(edUnits[edSelId]){
+      edUnits[edSelId].klData=MS_CODES.map((code,i)=>{
+        const row=document.querySelector(`#ep-kc-rows .ep-ht-row[data-ms="${code}"]`);
+        return{code,bt:parseFloat(row?.querySelector('.ep-kc-bt').value)||0,ct:parseFloat(row?.querySelector('.ep-kc-ct').value)||0,cf:parseFloat(row?.querySelector('.ep-kc-cf').value)||0};
+      });
+    }
+    toast(`✓ Đã ghi KL KC của căn ${edSelId}`);
+    await loadProjectData();
+  }catch(e){toast('Lỗi: '+e.message,'err');}
+  finally{btn.disabled=false;btn.textContent='☁ Ghi KLDinhMucKC';}
+}
+
+// Nút 3: Ghi HTDinhMuc (chỉ căn đang chọn)
+async function edWriteHTToSheet(){
+  if(!authToken){toast('Cần đăng nhập','err');return;}
+  if(!CUR){toast('Chưa chọn dự án','err');return;}
+  if(!edSelId){toast('Chọn căn ở tab Polygon trước','err');return;}
+  if(!HT_TASKS.length){toast('HTConfig chưa có dữ liệu','err');return;}
+  const btn=document.getElementById('ep-write-ht');
+  btn.disabled=true;btn.textContent='Đang ghi...';
+  try{
+    const newRows=[];
+    HT_TASKS.forEach(task=>{
+      const row=document.querySelector(`#ep-ht-rows .ep-ht-row[data-task="${task.code}"]`);
+      if(!row)return;
+      const m2=parseFloat(row.querySelector('.ep-ht-m2').value)||0;
+      const bt=parseFloat(row.querySelector('.ep-ht-bt').value)||0;
+      const ct=parseFloat(row.querySelector('.ep-ht-ct').value)||0;
+      if(m2||bt||ct)newRows.push([edSelId,task.code,m2,bt,ct,0]);
+    });
+    const existing=await gapi(CUR.sheetId,'HTDinhMuc!A:F');
+    const vals=existing.values||[];
+    const header=vals[0]||['VillaCode','TaskCode','KL_plan','BT_plan','CT_plan','CF_plan'];
+    const kept=vals.filter((r,i)=>i===0||r[0]!==edSelId);
+    const final=[...kept,...newRows];
+    if(final[0][0]!=='VillaCode')final.unshift(header);
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/HTDinhMuc!A1:F10000:clear`,{method:'POST',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'}});
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CUR.sheetId}/values/HTDinhMuc!A1:F${final.length}?valueInputOption=USER_ENTERED`,{method:'PUT',headers:{'Authorization':'Bearer '+authToken,'Content-Type':'application/json'},body:JSON.stringify({values:final})});
+    // Cập nhật local HT_DINH_MUC
+    HT_TASKS.forEach(task=>{
+      const row=document.querySelector(`#ep-ht-rows .ep-ht-row[data-task="${task.code}"]`);
+      if(!row)return;
+      HT_DINH_MUC[edSelId+'|'+task.code]={
+        m2:parseFloat(row.querySelector('.ep-ht-m2').value)||0,
+        bt:parseFloat(row.querySelector('.ep-ht-bt').value)||0,
+        ct:parseFloat(row.querySelector('.ep-ht-ct').value)||0,cf:0
+      };
+    });
+    toast(`✓ Đã ghi KL HT của căn ${edSelId}`);
+    await loadHTData();
+  }catch(e){toast('Lỗi: '+e.message,'err');}
+  finally{btn.disabled=false;btn.textContent='☁ Ghi HTDinhMuc';}
+}
+
+// ════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════
 edInitSVG(2000,1500);edSetMode('draw');
 loadRegistry();
 </script>
-<div class="app-footer">© 2026 VELA E&C · v7.3 · Lê Trần Anh Toàn</div>
+<div class="app-footer">© 2026 VELA E&C · v7.4 · Lê Trần Anh Toàn</div>
 </body>
 </html>
