@@ -44,6 +44,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--dark);color:var(--
 .auth-btn{font-family:inherit;font-size:11px;padding:5px 14px;border-radius:6px;cursor:pointer;border:none;font-weight:600;transition:all .15s}
 .auth-login{background:var(--gold);color:#111827}
 .auth-login:hover{background:#d4974a}
+@keyframes pulse-gold{0%,100%{box-shadow:0 0 0 0 rgba(200,169,110,.6)}50%{box-shadow:0 0 0 8px rgba(200,169,110,0)}}
 .auth-logout{background:transparent;border:1px solid #334155;color:#64748b}
 .auth-logout:hover{border-color:#ef4444;color:#ef4444}
 
@@ -949,7 +950,7 @@ let PROJECTS=[], CUR=null, COORDS={}, VI={}, SD={}, KL={};
 let sel=null, multiSel=new Set(), zl=0.7, klChart=null, refreshTimer=null;
 let mapW=2000, mapH=1760;
 let msFilter=null;
-let authToken=null, authUser=null, tokenClient=null, userRole='viewer', userProjectIds=[];
+let authToken=null, authUser=null, tokenClient=null, userRole='viewer', userProjectIds=[], _inWhitelist=false;
 
 // ════════════════════════════════════════
 // HELPERS
@@ -1020,7 +1021,8 @@ function initAuth(){
           await checkWhitelist(u.email);
           localStorage.setItem('wc_session',JSON.stringify({
             email:u.email,name:u.name,picture:u.picture,
-            given_name:u.given_name,role:userRole,projectIds:userProjectIds
+            given_name:u.given_name,role:userRole,
+            projectIds:userProjectIds,inWhitelist:_inWhitelist
           }));
           updateAuthUI();
           if(!_silentReauth) toast('Đã đăng nhập: '+u.name+' ('+userRole+')');
@@ -1043,7 +1045,7 @@ function signIn(){
 }
 function signOut(){
   if(authToken)google.accounts.oauth2.revoke(authToken);
-  authToken=null;authUser=null;userRole='viewer';userProjectIds=[];
+  authToken=null;authUser=null;userRole='viewer';userProjectIds=[];_inWhitelist=false;
   localStorage.removeItem('wc_session');
   updateAuthUI();toast('Đã đăng xuất');
 }
@@ -1054,20 +1056,32 @@ async function checkWhitelist(email){
     const rows=(data.values||[]).slice(1).filter(r=>r[0]);
     const found=rows.find(r=>r[0].trim().toLowerCase()===email.toLowerCase());
     if(found){
+      _inWhitelist=true;
       userRole=(found[1]||'viewer').toLowerCase().trim();
       const rawProj=(found[2]||'').trim();
-      // Cột C trống = toàn bộ dự án; có giá trị = list ProjectID cách nhau dấu phẩy
       userProjectIds=rawProj?rawProj.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean):[];
     }else{
-      userRole='viewer';userProjectIds=[];
+      // Không có trong Whitelist — khóa tất cả dự án
+      _inWhitelist=false;
+      userRole='viewer';
+      userProjectIds=[];
     }
-  }catch(e){userRole='viewer';userProjectIds=[];}
+  }catch(e){_inWhitelist=false;userRole='viewer';userProjectIds=[];}
+}
 }
 
 // Kiểm tra có quyền vào dự án projectId không
 function canAccessProject(projectId){
-  if(userRole==='admin'||userRole==='bgd')return true; // full access
-  if(userProjectIds.length===0)return true; // không giới hạn dự án
+  // Chưa đăng nhập → không vào được
+  if(!authUser) return false;
+  // Admin, BGD → toàn quyền
+  if(userRole==='admin'||userRole==='bgd') return true;
+  // Đăng nhập nhưng không có trong Whitelist → userProjectIds=[], role=viewer mặc định
+  // Trường hợp này khóa hết — phân biệt bằng flag _inWhitelist
+  if(!_inWhitelist) return false;
+  // Có trong Whitelist, không giới hạn dự án → vào được hết
+  if(userProjectIds.length===0) return true;
+  // Có trong Whitelist, giới hạn dự án → kiểm tra
   return userProjectIds.includes((projectId||'').toUpperCase());
 }
 
@@ -1139,11 +1153,13 @@ window.addEventListener('load',()=>{
       authUser={email:s.email,name:s.name,picture:s.picture,given_name:s.given_name};
       userRole=s.role||'viewer';
       userProjectIds=s.projectIds||[];
+      _inWhitelist=s.inWhitelist||false;
       updateAuthUI();
       checkWhitelist(s.email).then(()=>{
         localStorage.setItem('wc_session',JSON.stringify({
           email:s.email,name:s.name,picture:s.picture,
-          given_name:s.given_name,role:userRole,projectIds:userProjectIds
+          given_name:s.given_name,role:userRole,
+          projectIds:userProjectIds,inWhitelist:_inWhitelist
         }));
         updateAuthUI();
       });
@@ -1198,20 +1214,44 @@ function renderProjectGrid(){
   if(!PROJECTS.length)return;
   grid.innerHTML='';
   PROJECTS.forEach(p=>{
-    const hasAccess=canAccessProject(p.id);
     const card=document.createElement('div');
     card.className='proj-card';
+
+    // CHƯA ĐĂNG NHẬP → hiện card bình thường, bấm vào yêu cầu đăng nhập
+    if(!authUser){
+      card.style.setProperty('--c',p.color);
+      card.innerHTML=`
+        <div class="pc-id">${p.id}</div>
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-sub">Đăng nhập để xem dashboard</div>
+        <div class="pc-arrow" style="font-size:13px">🔐</div>`;
+      card.addEventListener('click',()=>{
+        toast('Vui lòng đăng nhập để xem dự án','err');
+        // Scroll lên auth bar để user thấy nút đăng nhập
+        document.getElementById('btn-login-home').style.animation='pulse-gold 1s 2';
+        setTimeout(()=>document.getElementById('btn-login-home').style.animation='',2000);
+      });
+      grid.appendChild(card);
+      return;
+    }
+
+    // ĐÃ ĐĂNG NHẬP — kiểm tra quyền
+    const hasAccess=canAccessProject(p.id);
     card.style.setProperty('--c',hasAccess?p.color:'#334155');
     if(!hasAccess){
-      // Hiện card mờ + icon khóa, bấm vào báo lỗi
-      card.style.opacity='0.45';
+      // Có trong Whitelist nhưng không có quyền dự án này
+      // HOẶC đăng nhập nhưng không có trong Whitelist (userRole vẫn = viewer, userProjectIds=[])
+      const msg = authUser&&userProjectIds.length===0&&userRole==='viewer'
+        ? 'Tài khoản chưa được cấp quyền'
+        : 'Bạn không có quyền truy cập dự án này';
+      card.style.opacity='0.4';
       card.style.cursor='not-allowed';
       card.innerHTML=`
         <div class="pc-id">${p.id}</div>
         <div class="pc-name" style="color:#475569">${p.name}</div>
-        <div class="pc-sub">Không có quyền truy cập</div>
+        <div class="pc-sub" style="color:#334155">${msg}</div>
         <div class="pc-arrow" style="font-size:14px;color:#334155">🔒</div>`;
-      card.addEventListener('click',()=>toast('Bạn không có quyền truy cập dự án này','err'));
+      card.addEventListener('click',()=>toast(msg,'err'));
     }else{
       card.innerHTML=`
         <div class="pc-id">${p.id}</div>
@@ -1222,6 +1262,7 @@ function renderProjectGrid(){
     }
     grid.appendChild(card);
   });
+
   // Nút thêm dự án — chỉ admin
   if(isAdmin()){
     const add=document.createElement('div');
