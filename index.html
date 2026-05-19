@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>VELA E&C — Theo dõi tiến độ v7.1</title>
+<title>VELA E&C — Theo dõi tiến độ v7.2</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -558,7 +558,7 @@ option{background:#111827}
       <span class="h-auth-name" id="h-auth-name"></span>
     </div>
     <span class="lupd" id="lupd">—</span>
-    <button class="weekly-btn" onclick="openWeekly()">📊 Tuần</button>
+    <button class="weekly-btn" id="weekly-btn-hdr" onclick="openWeekly()">📊 Tuần</button>
     <button class="rbtn" onclick="refreshData()">↻</button>
   </header>
 
@@ -575,22 +575,22 @@ option{background:#111827}
       <div class="weekly-body">
         <div class="weekly-chart-wrap"><canvas id="weekly-chart"></canvas></div>
         <table class="weekly-table" id="weekly-table">
-          <thead><tr><th>Tuần</th><th>Ngày chốt</th><th>BT (m³)</th><th>CT (kg)</th><th>CF (m²)</th><th>Căn TC</th><th>BT tuần</th><th>CT tuần</th><th>CF tuần</th></tr></thead>
+          <thead><tr><th>Tuần</th><th>Ngày chốt</th><th>BT (m³)</th><th>CT (tấn)</th><th>CF (m²)</th><th>Căn TC</th><th>BT tuần</th><th>CT tuần</th><th>CF tuần</th></tr></thead>
           <tbody id="weekly-tbody"></tbody>
         </table>
       </div>
       <div class="weekly-footer">
         <div>
-          <div style="font-size:10px;color:#64748b">Chốt vào: <span id="weekly-day-label">—</span></div>
+          <div style="font-size:10px;color:#64748b">Chốt tự động: <span id="weekly-day-label">Thứ 2 · 7:00 sáng</span></div>
           <div style="font-size:9px;color:#334155;margin-top:2px" id="weekly-last-txt">—</div>
         </div>
         <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-          <span id="weekly-remind" class="week-remind" style="display:none">⏰ Đến ngày chốt tuần!</span>
-          <select id="weekly-day-sel" style="font-family:inherit;font-size:10px;background:#111827;border:1px solid #1e293b;border-radius:6px;padding:4px 8px;color:#94a3b8;cursor:pointer">
+          <span id="weekly-remind" class="week-remind" style="display:none">⏰ Hôm nay là ngày chốt tuần!</span>
+          <select id="weekly-day-sel" style="display:none;font-family:inherit;font-size:10px;background:#111827;border:1px solid #1e293b;border-radius:6px;padding:4px 8px;color:#94a3b8;cursor:pointer">
             <option value="0">Chủ nhật</option><option value="1">Thứ 2</option><option value="2">Thứ 3</option>
             <option value="3">Thứ 4</option><option value="4">Thứ 5</option><option value="5">Thứ 6</option><option value="6">Thứ 7</option>
           </select>
-          <button class="weekly-confirm-btn" id="weekly-chot-btn" onclick="chotTuan()">✓ Chốt tuần này</button>
+          <button class="weekly-confirm-btn" id="weekly-chot-btn" onclick="chotTuan()" style="display:none">✓ Chốt thủ công</button>
         </div>
       </div>
     </div>
@@ -703,7 +703,7 @@ option{background:#111827}
       </div>
       <div class="proj-item">
         <div class="proj-label">Cốt thép</div>
-        <div class="proj-nums"><span class="proj-done" id="proj-r-done">—</span><span class="proj-total" id="proj-r-total">/ —</span><span class="proj-unit">kg</span><span class="proj-pct-badge" id="proj-r-pct" style="background:#14532d;color:#34d399">—</span></div>
+        <div class="proj-nums"><span class="proj-done" id="proj-r-done">—</span><span class="proj-total" id="proj-r-total">/ —</span><span class="proj-unit">tấn</span><span class="proj-pct-badge" id="proj-r-pct" style="background:#14532d;color:#34d399">—</span></div>
         <div class="proj-bar-wrap"><div class="proj-bar-fill" id="proj-r-bar" style="width:0%;background:#34d399"></div></div>
       </div>
       <div class="proj-item">
@@ -843,7 +843,7 @@ option{background:#111827}
           <div class="efl">Loại căn</div>
           <select class="efi" id="ep-type"><option value="Biệt thự vườn">Biệt thự vườn</option><option value="Dinh thự đồi">Dinh thự đồi</option><option value="Dinh thự đồi góc">Dinh thự đồi góc</option></select>
           <div style="display:flex;gap:4px"><div style="flex:1"><div class="efl">Diện tích</div><input class="efi" id="ep-area" placeholder="160 m²"></div><div style="flex:1"><div class="efl">Image URL</div><input class="efi" id="ep-imgurl" placeholder="https://..."></div></div>
-          <div class="efl" style="margin-top:6px;margin-bottom:4px">KL dự toán cộng dồn theo mốc (m³ / kg / m²)</div>
+          <div class="efl" style="margin-top:6px;margin-bottom:4px">KL dự toán cộng dồn theo mốc (m³ / tấn / m²)</div>
           <div id="ep-kl-table" style="background:#0f172a;border:1px solid #1e293b;border-radius:6px;overflow:hidden;margin-bottom:6px">
             <div style="display:grid;grid-template-columns:1fr 60px 60px 60px;gap:0;font-size:8px;font-weight:700;color:#475569;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1e293b;background:#111827">
               <span>Mốc</span><span style="text-align:center">BT</span><span style="text-align:center">CT</span><span style="text-align:center">CF</span>
@@ -949,7 +949,7 @@ let PROJECTS=[], CUR=null, COORDS={}, VI={}, SD={}, KL={};
 let sel=null, multiSel=new Set(), zl=0.7, klChart=null, refreshTimer=null;
 let mapW=2000, mapH=1760;
 let msFilter=null;
-let authToken=null, authUser=null, tokenClient=null, userRole='viewer';
+let authToken=null, authUser=null, tokenClient=null, userRole='viewer', userProjectIds=[];
 
 // ════════════════════════════════════════
 // HELPERS
@@ -1020,7 +1020,7 @@ function initAuth(){
           await checkWhitelist(u.email);
           localStorage.setItem('wc_session',JSON.stringify({
             email:u.email,name:u.name,picture:u.picture,
-            given_name:u.given_name,role:userRole
+            given_name:u.given_name,role:userRole,projectIds:userProjectIds
           }));
           updateAuthUI();
           if(!_silentReauth) toast('Đã đăng nhập: '+u.name+' ('+userRole+')');
@@ -1043,22 +1043,47 @@ function signIn(){
 }
 function signOut(){
   if(authToken)google.accounts.oauth2.revoke(authToken);
-  authToken=null;authUser=null;userRole='viewer';
+  authToken=null;authUser=null;userRole='viewer';userProjectIds=[];
   localStorage.removeItem('wc_session');
   updateAuthUI();toast('Đã đăng xuất');
 }
 
 async function checkWhitelist(email){
   try{
-    const data=await gapi(REGISTRY_ID,'Whitelist!A:B');
+    const data=await gapi(REGISTRY_ID,'Whitelist!A:C');
     const rows=(data.values||[]).slice(1).filter(r=>r[0]);
     const found=rows.find(r=>r[0].trim().toLowerCase()===email.toLowerCase());
-    userRole=found?(found[1]||'viewer').toLowerCase():'viewer';
-  }catch(e){userRole='viewer';}
+    if(found){
+      userRole=(found[1]||'viewer').toLowerCase().trim();
+      const rawProj=(found[2]||'').trim();
+      // Cột C trống = toàn bộ dự án; có giá trị = list ProjectID cách nhau dấu phẩy
+      userProjectIds=rawProj?rawProj.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean):[];
+    }else{
+      userRole='viewer';userProjectIds=[];
+    }
+  }catch(e){userRole='viewer';userProjectIds=[];}
 }
 
-function canEdit(){return userRole==='admin'||userRole==='editor';}
+// Kiểm tra có quyền vào dự án projectId không
+function canAccessProject(projectId){
+  if(userRole==='admin'||userRole==='bgd')return true; // full access
+  if(userProjectIds.length===0)return true; // không giới hạn dự án
+  return userProjectIds.includes((projectId||'').toUpperCase());
+}
+
+function canEdit(){
+  // editor được cập nhật tiến độ trong dự án được gán
+  if(userRole==='admin')return true;
+  if(userRole==='editor'){
+    if(!CUR)return false;
+    return canAccessProject(CUR.id);
+  }
+  return false;
+}
 function isAdmin(){return userRole==='admin';}
+function isBGD(){return userRole==='bgd';}
+// canViewWeekly: admin, bgd được xem; editor được xem dự án của mình
+function canViewWeekly(){return userRole==='admin'||userRole==='bgd'||(userRole==='editor'&&CUR&&canAccessProject(CUR.id));}
 
 function updateAuthUI(){
   const logged=!!authUser;
@@ -1070,24 +1095,40 @@ function updateAuthUI(){
     document.getElementById('auth-name-home').textContent=authUser.name||'';
   }
   const av=document.getElementById('h-avatar');
-  if(logged){av.src=authUser.picture||'';av.style.display='';document.getElementById('h-auth-name').textContent=(authUser.given_name||'')+' · '+userRole;}
-  else{av.style.display='none';document.getElementById('h-auth-name').textContent='';}
+  const roleBadge={admin:'👑 Admin',bgd:'🎯 Ban GĐ',editor:'✏️ Editor',viewer:'👁 Viewer'};
+  if(logged){
+    av.src=authUser.picture||'';av.style.display='';
+    document.getElementById('h-auth-name').textContent=(authUser.given_name||'')+' · '+(roleBadge[userRole]||userRole);
+  }else{av.style.display='none';document.getElementById('h-auth-name').textContent='';}
 
-  // FIX: Editor hiện với canEdit() thay vì isAdmin()
+  // Tab Editor: chỉ admin
   const tabEditor=document.getElementById('htab-editor');
+  if(tabEditor) tabEditor.style.display=isAdmin()?'':'none';
+  // Tab Admin: chỉ admin
   const tabAdmin=document.getElementById('htab-admin');
-  if(tabEditor) tabEditor.style.display=canEdit()?'':'none';
   if(tabAdmin)  tabAdmin.style.display=isAdmin()?'':'none';
-
+  // Nút cập nhật tiến độ: admin + editor (dự án)
   const btnUpdate=document.getElementById('btn-update-progress');
   if(btnUpdate) btnUpdate.style.display=canEdit()?'':'none';
+  // Admin panel
   document.getElementById('admin-lock').style.display=isAdmin()?'none':'flex';
   document.getElementById('admin-content').style.display=isAdmin()?'block':'none';
   if(isAdmin())adminLoadProjects();
+  // Nút thêm dự án
   document.querySelectorAll('.proj-card-add').forEach(c=>{
     c.classList.toggle('locked',!isAdmin());
     c.title=isAdmin()?'':'Cần quyền admin';
   });
+  // Nút Weekly: admin và BGD xem được; editor cũng xem được
+  const weeklyBtn=document.getElementById('weekly-btn-hdr');
+  if(weeklyBtn) weeklyBtn.style.display=(userRole==='admin'||userRole==='bgd'||userRole==='editor')?'':'none';
+  // Nút chốt tuần trong modal: CHỈ admin (auto bằng Apps Script)
+  const chotBtn=document.getElementById('weekly-chot-btn');
+  if(chotBtn) chotBtn.style.display=isAdmin()?'':'none';
+  const weeklyFooterSel=document.getElementById('weekly-day-sel');
+  if(weeklyFooterSel) weeklyFooterSel.style.display=isAdmin()?'':'none';
+  // Render lại grid nếu đang ở home
+  renderProjectGrid();
 }
 
 window.addEventListener('load',()=>{
@@ -1097,11 +1138,12 @@ window.addEventListener('load',()=>{
       const s=JSON.parse(saved);
       authUser={email:s.email,name:s.name,picture:s.picture,given_name:s.given_name};
       userRole=s.role||'viewer';
+      userProjectIds=s.projectIds||[];
       updateAuthUI();
       checkWhitelist(s.email).then(()=>{
         localStorage.setItem('wc_session',JSON.stringify({
           email:s.email,name:s.name,picture:s.picture,
-          given_name:s.given_name,role:userRole
+          given_name:s.given_name,role:userRole,projectIds:userProjectIds
         }));
         updateAuthUI();
       });
@@ -1136,6 +1178,7 @@ function switchTab(t){
 // ════════════════════════════════════════
 async function loadRegistry(){
   const grid=document.getElementById('proj-grid');
+  grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:32px;color:#334155;font-size:12px"><div class="spin" style="margin:0 auto 10px"></div>Đang tải dự án...</div>`;
   try{
     const data=await gapi(REGISTRY_ID,'Registry!A:H');
     const rows=(data.values||[]).slice(1).filter(r=>r[0]&&r[2]);
@@ -1144,22 +1187,47 @@ async function loadRegistry(){
       color:r[3]||'#C8A96E',imageUrl:r[4]||'',
       imgW:parseInt(r[6])||2000,imgH:parseInt(r[7])||1760,
     }));
-    grid.innerHTML='';
-    PROJECTS.forEach(p=>{
-      const card=document.createElement('div');
-      card.className='proj-card';
-      card.style.setProperty('--c',p.color);
-      card.innerHTML=`<div class="pc-id">${p.id}</div><div class="pc-name">${p.name}</div><div class="pc-sub">Nhấn để xem dashboard</div><div class="pc-arrow">→</div>`;
+    renderProjectGrid();
+  }catch(e){
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:32px;color:#ef4444;font-size:11px">Lỗi tải Registry: ${e.message}</div>`;
+  }
+}
+
+function renderProjectGrid(){
+  const grid=document.getElementById('proj-grid');
+  if(!PROJECTS.length)return;
+  grid.innerHTML='';
+  PROJECTS.forEach(p=>{
+    const hasAccess=canAccessProject(p.id);
+    const card=document.createElement('div');
+    card.className='proj-card';
+    card.style.setProperty('--c',hasAccess?p.color:'#334155');
+    if(!hasAccess){
+      // Hiện card mờ + icon khóa, bấm vào báo lỗi
+      card.style.opacity='0.45';
+      card.style.cursor='not-allowed';
+      card.innerHTML=`
+        <div class="pc-id">${p.id}</div>
+        <div class="pc-name" style="color:#475569">${p.name}</div>
+        <div class="pc-sub">Không có quyền truy cập</div>
+        <div class="pc-arrow" style="font-size:14px;color:#334155">🔒</div>`;
+      card.addEventListener('click',()=>toast('Bạn không có quyền truy cập dự án này','err'));
+    }else{
+      card.innerHTML=`
+        <div class="pc-id">${p.id}</div>
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-sub">Nhấn để xem dashboard</div>
+        <div class="pc-arrow">→</div>`;
       card.addEventListener('click',()=>openProject(p));
-      grid.appendChild(card);
-    });
+    }
+    grid.appendChild(card);
+  });
+  // Nút thêm dự án — chỉ admin
+  if(isAdmin()){
     const add=document.createElement('div');
-    add.className='proj-card-add'+(authUser?'':' locked');
+    add.className='proj-card-add';
     add.innerHTML='<span style="font-size:20px">＋</span> Thêm dự án mới';
-    add.title=authUser?'':'Đăng nhập để thêm dự án';
     add.addEventListener('click',()=>{
-      if(!authUser){toast('Cần đăng nhập để thêm dự án','err');return;}
-      if(!isAdmin()){toast('Cần quyền admin','err');return;}
       showScreen('scr-dashboard');
       document.getElementById('h-proj-id').textContent='';
       document.getElementById('h-proj-name').textContent='Quản lý dự án';
@@ -1170,8 +1238,6 @@ async function loadRegistry(){
       adminLoadProjects();
     });
     grid.appendChild(add);
-  }catch(e){
-    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:32px;color:#ef4444;font-size:11px">Lỗi tải Registry: ${e.message}</div>`;
   }
 }
 
@@ -1180,6 +1246,10 @@ async function loadRegistry(){
 // ════════════════════════════════════════
 async function openProject(p){
   if(!p)return;
+  // Double-check quyền (phòng bypass)
+  if(!canAccessProject(p.id)){
+    toast('Bạn không có quyền truy cập dự án này','err');return;
+  }
   CUR=p;sel=null;multiSel.clear();COORDS={};VI={};SD={};KL={};
   document.getElementById('h-proj-id').textContent=p.id;
   document.getElementById('h-proj-name').textContent=p.name;
@@ -1191,6 +1261,8 @@ async function openProject(p){
   document.getElementById('pe').style.display='';
   document.getElementById('pb').classList.remove('show');
   document.getElementById('mpb').classList.remove('show');
+  // Cập nhật UI theo quyền của dự án này (canEdit() phụ thuộc CUR)
+  updateAuthUI();
   await loadProjectData();
   if(refreshTimer)clearInterval(refreshTimer);
   if(AUTO_REFRESH_MIN>0)refreshTimer=setInterval(refreshData,AUTO_REFRESH_MIN*60000);
@@ -1395,7 +1467,7 @@ function showSinglePanel(id){
   if(klChart)klChart.destroy();
   const ctx=document.getElementById('kl-chart').getContext('2d');
   klChart=new Chart(ctx,{type:'doughnut',data:{labels:['BT','CT','CF'],datasets:[{data:[pc,100-pc],backgroundColor:['#60a5fa','#1e3a5f'],borderWidth:0},{data:[pr,100-pr],backgroundColor:['#34d399','#14532d'],borderWidth:0},{data:[pf,100-pf],backgroundColor:['#fbbf24','#451a03'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'35%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){const v=[pc,pr,pf];if(c.dataIndex===0)return['Bê tông','Cốt thép','Coppha'][c.datasetIndex]+': '+v[c.datasetIndex]+'%';return null;}}}}}});
-  document.getElementById('kli').innerHTML=[{name:'Bê tông',unit:'m³',d:k.cd,t:k.cp,p:pc,color:'#60a5fa'},{name:'Cốt thép',unit:'kg',d:k.rd,t:k.rp,p:pr,color:'#34d399'},{name:'Coppha',unit:'m²',d:k.fd,t:k.fp,p:pf,color:'#fbbf24'}].map(item=>`<div class="ki"><div class="kh"><div style="display:flex;align-items:center;gap:4px"><div style="width:6px;height:6px;border-radius:50%;background:${item.color};flex-shrink:0"></div><span class="kn">${item.name}</span></div><div class="kstats"><span class="knum">${fmt(item.d)} / ${fmt(item.t)} ${item.unit}</span><span class="kpct-badge" style="background:${pColor(item.p)}22;color:${pColor(item.p)}">${item.p}%</span></div></div><div class="kbw"><div class="kb" style="width:${item.p}%;background:${item.color}"></div></div></div>`).join('');
+  document.getElementById('kli').innerHTML=[{name:'Bê tông',unit:'m³',d:k.cd,t:k.cp,p:pc,color:'#60a5fa'},{name:'Cốt thép',unit:'tấn',d:k.rd,t:k.rp,p:pr,color:'#34d399'},{name:'Coppha',unit:'m²',d:k.fd,t:k.fp,p:pf,color:'#fbbf24'}].map(item=>`<div class="ki"><div class="kh"><div style="display:flex;align-items:center;gap:4px"><div style="width:6px;height:6px;border-radius:50%;background:${item.color};flex-shrink:0"></div><span class="kn">${item.name}</span></div><div class="kstats"><span class="knum">${fmt(item.d)} / ${fmt(item.t)} ${item.unit}</span><span class="kpct-badge" style="background:${pColor(item.p)}22;color:${pColor(item.p)}">${item.p}%</span></div></div><div class="kbw"><div class="kb" style="width:${item.p}%;background:${item.color}"></div></div></div>`).join('');
   document.getElementById('pf').textContent=s.date?'Cập nhật: '+s.date:'Chưa có dữ liệu';
   renderDesktopPhotoGrid(id);
   const btnUp=document.getElementById('btn-update-progress');
@@ -1416,7 +1488,7 @@ function showMultiPanel(){
   let cd=0,cp=0,rd=0,rp=0,fd=0,fp=0,act=0,done=0,none=0,prog=0;
   ids.forEach(id=>{const k=KL[id]||{cd:0,cp:0,rd:0,rp:0,fd:0,fp:0};const s=SD[id];const i=s?mi(s.ms):-1;cd+=k.cd;cp+=k.cp;rd+=k.rd;rp+=k.rp;fd+=k.fd;fp+=k.fp;if(!s||!s.ms)none++;else if(i===MS.length-1)done++;else act++;prog+=i<0?0:Math.round((i+1)/MS.length*100);});
   const setKL=(pre,d,t,unit)=>{const p=pctN(d,t);document.getElementById(`mp-${pre}-nums`).textContent=`${fmt(d)} / ${fmt(t)} ${unit}`;document.getElementById(`mp-${pre}-pct`).textContent=p+'%';document.getElementById(`mp-${pre}-bar`).style.width=p+'%';document.getElementById(`mp-${pre}-detail`).textContent=`TB/căn: ${ids.length?(d/ids.length).toFixed(1):0} ${unit}`;};
-  setKL('c',cd,cp,'m³');setKL('r',rd,rp,'kg');setKL('f',fd,fp,'m²');
+  setKL('c',cd,cp,'m³');setKL('r',rd,rp,'tấn');setKL('f',fd,fp,'m²');
   document.getElementById('mp-act').textContent=act;document.getElementById('mp-done').textContent=done;document.getElementById('mp-none').textContent=none;
   document.getElementById('mp-prog').textContent=ids.length?Math.round(prog/ids.length)+'%':'—';
 }
@@ -2065,11 +2137,15 @@ function getWeekLabel(date){
 
 function openWeekly(){
   if(!CUR){toast('Chưa chọn dự án','err');return;}
+  if(!canViewWeekly()){toast('Bạn không có quyền xem báo cáo tuần','err');return;}
   document.getElementById('weekly-panel').classList.add('show');
   document.getElementById('weekly-proj-sub').textContent=CUR.name;
-  const savedDay=localStorage.getItem('wc_weekly_day')||'0';
-  document.getElementById('weekly-day-sel').value=savedDay;
-  updateWeeklyDayLabel();loadWeeklyData();
+  // Chỉ admin mới thấy nút chốt thủ công và day selector
+  const chotBtn=document.getElementById('weekly-chot-btn');
+  const daySel=document.getElementById('weekly-day-sel');
+  if(chotBtn)chotBtn.style.display=isAdmin()?'':'none';
+  if(daySel)daySel.style.display=isAdmin()?'':'none';
+  loadWeeklyData();
 }
 function closeWeekly(){document.getElementById('weekly-panel').classList.remove('show');}
 
@@ -2188,7 +2264,7 @@ function renderMobileOverview(){
   const pc=pctN(cd,cp),pr=pctN(rd,rp),pf=pctN(fd,fp);
   document.getElementById('mob-kl-list').innerHTML=`
     <div class="mob-kl-row"><div class="mob-kl-label" style="color:#60a5fa">BT</div><div class="mob-kl-bar-wrap"><div class="mob-kl-bar-fill" style="width:${pc}%;background:#60a5fa"></div></div><div class="mob-kl-nums">${fmt(cd)}/${fmt(cp)} m³</div><div class="mob-kl-pct" style="color:#60a5fa">${pc}%</div></div>
-    <div class="mob-kl-row"><div class="mob-kl-label" style="color:#34d399">CT</div><div class="mob-kl-bar-wrap"><div class="mob-kl-bar-fill" style="width:${pr}%;background:#34d399"></div></div><div class="mob-kl-nums">${fmt(rd)}/${fmt(rp)} kg</div><div class="mob-kl-pct" style="color:#34d399">${pr}%</div></div>
+    <div class="mob-kl-row"><div class="mob-kl-label" style="color:#34d399">CT</div><div class="mob-kl-bar-wrap"><div class="mob-kl-bar-fill" style="width:${pr}%;background:#34d399"></div></div><div class="mob-kl-nums">${fmt(rd)}/${fmt(rp)} tấn</div><div class="mob-kl-pct" style="color:#34d399">${pr}%</div></div>
     <div class="mob-kl-row"><div class="mob-kl-label" style="color:#fbbf24">CF</div><div class="mob-kl-bar-wrap"><div class="mob-kl-bar-fill" style="width:${pf}%;background:#fbbf24"></div></div><div class="mob-kl-nums">${fmt(fd)}/${fmt(fp)} m²</div><div class="mob-kl-pct" style="color:#fbbf24">${pf}%</div></div>`;
 }
 
@@ -2373,6 +2449,6 @@ window.addEventListener('load',()=>{loadLogo();},true);
 edInitSVG(2000,1500);edSetMode('draw');
 loadRegistry();
 </script>
-<div class="app-footer">© 2026 VELA E&C · v7.1 · Lê Trần Anh Toàn</div>
+<div class="app-footer">© 2026 VELA E&C · v7.2 · Lê Trần Anh Toàn</div>
 </body>
 </html>
