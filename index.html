@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>VELA E&C — Theo dõi tiến độ v7.5</title>
+<title>VELA E&C — Theo dõi tiến độ v7.7</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -390,6 +390,16 @@ header{background:#111827;border-bottom:1px solid #1e293b;padding:5px 14px;displ
 .ht-stat{background:#111827;padding:4px 10px;text-align:center}
 .ht-stat-n{font-size:14px;font-weight:700;color:#f1f5f9}
 .ht-stat-l{font-size:8px;color:#475569;text-transform:uppercase;letter-spacing:.04em}
+.ht-group-stat{background:#111827;padding:5px 10px;min-width:140px;flex-shrink:0}
+.ht-gs-label{font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;font-weight:600}
+.ht-gs-row{display:flex;align-items:baseline;gap:3px;margin-bottom:2px}
+.ht-gs-done{font-size:12px;font-weight:700;color:#f1f5f9}
+.ht-gs-sep{font-size:9px;color:#334155}
+.ht-gs-plan{font-size:9px;color:#475569}
+.ht-gs-unit{font-size:8px;color:#64748b;margin-left:2px}
+.ht-gs-pct{font-size:9px;font-weight:700;padding:1px 5px;border-radius:7px;margin-left:4px}
+.ht-gs-bar-wrap{height:3px;background:#1e293b;border-radius:2px;overflow:hidden;margin-top:2px}
+.ht-gs-bar-fill{height:100%;border-radius:2px;transition:width .5s}
 /* Mobile HT */
 .mob-ht-section{background:#111827;border:1px solid #1e293b;border-radius:12px;padding:14px;margin-bottom:12px}
 .mob-ht-task-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #1e293b}
@@ -916,11 +926,11 @@ option{background:#111827}
 
   <!-- TAB: HOÀN THIỆN -->
   <div class="tab-content" id="tab-hoanThien">
-    <div class="ht-summary">
-      <div class="ht-stat"><div class="ht-stat-n" id="ht-s-total">—</div><div class="ht-stat-l">Tổng căn</div></div>
-      <div class="ht-stat"><div class="ht-stat-n" id="ht-s-done" style="color:#34d399">—</div><div class="ht-stat-l">Hoàn thành</div></div>
-      <div class="ht-stat"><div class="ht-stat-n" id="ht-s-doing" style="color:var(--gold)">—</div><div class="ht-stat-l">Đang TC</div></div>
-      <div class="ht-stat"><div class="ht-stat-n" id="ht-s-none" style="color:#475569">—</div><div class="ht-stat-l">Chưa BĐ</div></div>
+    <div id="ht-summary-bar" style="display:flex;flex-wrap:nowrap;gap:1px;background:#1e293b;border-bottom:1px solid #1e293b;flex-shrink:0;overflow-x:auto;min-height:52px">
+      <div class="ht-stat" style="min-width:80px"><div class="ht-stat-n" id="ht-s-total">—</div><div class="ht-stat-l">Tổng căn</div></div>
+      <div class="ht-stat" style="min-width:80px"><div class="ht-stat-n" id="ht-s-doing" style="color:var(--gold)">—</div><div class="ht-stat-l">Đang TC</div></div>
+      <div class="ht-stat" style="min-width:80px"><div class="ht-stat-n" id="ht-s-done" style="color:#34d399">—</div><div class="ht-stat-l">HT 100%</div></div>
+      <div id="ht-group-stats" style="display:contents"></div>
     </div>
     <div class="ht-wrap">
       <!-- MAP -->
@@ -974,14 +984,6 @@ option{background:#111827}
             </div>
             <div style="font-size:9px;color:#94a3b8;margin-bottom:4px">Ngày cập nhật</div>
             <input type="date" class="ht-sel" id="ht-date-inp" style="margin-bottom:6px">
-            <div id="ht-kl-inputs" style="display:none">
-              <div style="font-size:9px;color:#94a3b8;margin-bottom:4px">KL thực tế (tự lấy từ định mức khi Hoàn thành)</div>
-              <div class="ht-kl-row">
-                <div><div class="ht-kl-label">m² (chính)</div><input class="ht-kl-inp" id="ht-kl-m2" type="number" step="0.1" placeholder="0" readonly></div>
-                <div><div class="ht-kl-label">BT (m³)</div><input class="ht-kl-inp" id="ht-kl-bt" type="number" step="0.01" placeholder="0" readonly></div>
-                <div><div class="ht-kl-label">CT (tấn)</div><input class="ht-kl-inp" id="ht-kl-ct" type="number" step="0.001" placeholder="0" readonly></div>
-              </div>
-            </div>
             <div style="font-size:9px;color:#94a3b8;margin-bottom:4px">📷 Ảnh nghiệm thu <span style="color:#ef4444">*bắt buộc</span></div>
             <div id="ht-photo-preview-wrap" style="display:none" class="ht-preview-wrap">
               <img id="ht-photo-preview" class="ht-preview-img" src="" alt="">
@@ -1192,7 +1194,7 @@ let mapW=2000, mapH=1760;
 let msFilter=null;
 
 // Hoàn thiện state
-let HT_TASKS=[], HT_STATUS={}, HT_DINH_MUC={};
+let HT_TASKS=[], HT_STATUS={}, HT_DINH_MUC={}, HT_GROUPS={};
 let htSel=null, htZl=0.7, htFilter=null, htSelectedStatus='done', htPhotoFile=null;
 let authToken=null, authUser=null, tokenClient=null, userRole='viewer', userProjectIds=[], _inWhitelist=false;
 
@@ -2722,18 +2724,25 @@ async function loadHTData(){
   if(!CUR)return;
   try{
     const[rCfg,rDm,rSt]=await Promise.all([
-      gapi(CUR.sheetId,'HTConfig!A:G'),
+      gapi(CUR.sheetId,'HTConfig!A:E'),
       gapi(CUR.sheetId,'HTDinhMuc!A:C'),
       gapi(CUR.sheetId,'HTStatus!A:F'),
     ]);
-    // HTConfig: TaskCode | TaskName | Unit | Order
-    HT_TASKS=[];
+    // HTConfig: TaskCode | TaskName | Unit | GroupCode | Order
+    HT_TASKS=[];HT_GROUPS={};
     (rCfg.values||[]).slice(1).filter(r=>r[0]).forEach(r=>{
-      HT_TASKS.push({
+      const task={
         code:r[0]||'',name:r[1]||r[0],
         unit:r[2]||'m²',
-        order:parseInt(r[3])||99
-      });
+        group:r[3]||r[0],
+        order:parseInt(r[4])||99
+      };
+      HT_TASKS.push(task);
+      if(!HT_GROUPS[task.group]){
+        const gname=task.name.replace(/\s*T\d+\s*$/i,'').trim()||task.group;
+        HT_GROUPS[task.group]={name:gname,unit:task.unit,tasks:[],klDone:0,klPlan:0};
+      }
+      HT_GROUPS[task.group].tasks.push(task.code);
     });
     HT_TASKS.sort((a,b)=>a.order-b.order);
 
@@ -2757,11 +2766,21 @@ async function loadHTData(){
       };
     });
 
+    // Tính KL theo nhóm — tổng tất cả căn
+    Object.keys(HT_GROUPS).forEach(g=>{HT_GROUPS[g].klDone=0;HT_GROUPS[g].klPlan=0;});
+    Object.keys(COORDS).forEach(vid=>{
+      HT_TASKS.forEach(task=>{
+        const dm=HT_DINH_MUC[vid+'|'+task.code];if(!dm)return;
+        const g=task.group;if(!HT_GROUPS[g])return;
+        HT_GROUPS[g].klPlan+=dm.kl;
+        const st=HT_STATUS[vid+'|'+task.code];
+        if(st&&st.status==='done')HT_GROUPS[g].klDone+=dm.kl;
+      });
+    });
     htRenderMap();htUpdateSummary();
     if(htSel)htShowPanel(htSel);
   }catch(e){
-    // Sheet chưa có → không báo lỗi, chỉ để trống
-    HT_TASKS=[];HT_DINH_MUC={};HT_STATUS={};
+    HT_TASKS=[];HT_DINH_MUC={};HT_STATUS={};HT_GROUPS={};
   }
 }
 
@@ -2850,14 +2869,35 @@ function htUpdateSummary(){
     else if(d>0||g>0)doing++;
     else none++;
   });
-  const tot=ids.length;
-  document.getElementById('ht-s-total').textContent=tot;
+  document.getElementById('ht-s-total').textContent=ids.length;
   document.getElementById('ht-s-done').textContent=done;
   document.getElementById('ht-s-doing').textContent=doing;
-  document.getElementById('ht-s-none').textContent=none;
   document.getElementById('ht-leg-done-cnt').textContent=done;
   document.getElementById('ht-leg-doing-cnt').textContent=doing;
   document.getElementById('ht-leg-none-cnt').textContent=none;
+
+  // Render group KL stats
+  const gc=document.getElementById('ht-group-stats');if(!gc)return;
+  gc.innerHTML='';
+  const GRP_COLORS=['#60a5fa','#34d399','#fbbf24','#a78bfa','#f87171','#fb923c','#2dd4bf'];
+  Object.keys(HT_GROUPS).forEach((gk,i)=>{
+    const g=HT_GROUPS[gk];
+    const pct=g.klPlan>0?Math.round(g.klDone/g.klPlan*100):0;
+    const col=GRP_COLORS[i%GRP_COLORS.length];
+    const div=document.createElement('div');
+    div.className='ht-group-stat';
+    div.innerHTML=`
+      <div class="ht-gs-label">${g.name}</div>
+      <div class="ht-gs-row">
+        <span class="ht-gs-done">${fmt(g.klDone)}</span>
+        <span class="ht-gs-sep">/</span>
+        <span class="ht-gs-plan">${fmt(g.klPlan)}</span>
+        <span class="ht-gs-unit">${g.unit}</span>
+        <span class="ht-gs-pct" style="background:${col}22;color:${col}">${pct}%</span>
+      </div>
+      <div class="ht-gs-bar-wrap"><div class="ht-gs-bar-fill" style="width:${pct}%;background:${col}"></div></div>`;
+    gc.appendChild(div);
+  });
 }
 
 // ════════════════════════════════════════
@@ -2883,14 +2923,14 @@ function htShowPanel(id){
   }else{
     tasks.forEach(t=>{
       const key=id+'|'+t.code;const st=HT_STATUS[key];
-      const dm=HT_DINH_MUC[key]||{m2:0,bt:0,ct:0,cf:0};
+      const dm=HT_DINH_MUC[key]||{kl:0};
       const status=st?st.status:'none';
       const badgeCls=status==='done'?'ht-status-done':status==='doing'?'ht-status-doing':'ht-status-none';
       const badgeTxt=status==='done'?'✅ Xong':status==='doing'?'🔄 Đang TC':'⬜ Chưa';
       const photoHtml=st&&st.photoFileId
         ?`<img class="ht-photo-thumb" src="${driveThumbUrl(st.photoFileId,120)}" onclick="openLightbox('${driveThumbUrl(st.photoFileId,1200)}','${id} — ${t.name}','${(st.date||'').replace(/'/g,"\\'")}')">`
         :`<span style="font-size:11px;color:#cbd5e1">—</span>`;
-      const klStr=dm.m2?`${dm.m2} ${t.unit}`+(dm.bt?` · BT:${dm.bt}m³`:'')+(dm.ct?` · CT:${dm.ct}t`:''):'—';
+      const klStr=dm.kl?`${dm.kl} ${t.unit}`:'—';
       tbody.innerHTML+=`<tr>
         <td><div class="ht-task-name">${t.name}</div><div class="ht-task-code">${t.code}</div></td>
         <td class="ht-task-kl">${klStr}</td>
@@ -2919,7 +2959,6 @@ function htToggleForm(){
     btn.textContent='▲ Đóng';
     const sel=document.getElementById('ht-task-sel');
     sel.innerHTML=HT_TASKS.map(t=>`<option value="${t.code}">${t.name}</option>`).join('');
-    htOnTaskChange();
     const now=new Date();
     document.getElementById('ht-date-inp').value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     htSelectedStatus='done';htSetStatus('done');
@@ -2938,20 +2977,10 @@ function htSetStatus(st){
   htSelectedStatus=st;
   document.getElementById('ht-btn-doing').className='ht-radio-btn'+(st==='doing'?' active-doing':'');
   document.getElementById('ht-btn-done').className='ht-radio-btn'+(st==='done'?' active-done':'');
-  htOnTaskChange();
 }
 
 function htOnTaskChange(){
-  const taskCode=document.getElementById('ht-task-sel').value;
-  const task=HT_TASKS.find(t=>t.code===taskCode);
-  const dm=htSel&&taskCode?HT_DINH_MUC[htSel+'|'+taskCode]||{m2:0,bt:0,ct:0,cf:0}:{m2:0,bt:0,ct:0,cf:0};
-  const klWrap=document.getElementById('ht-kl-inputs');
-  if(htSelectedStatus==='done'&&task){
-    klWrap.style.display='';
-    document.getElementById('ht-kl-m2').value=dm.m2||'';
-    document.getElementById('ht-kl-bt').value=dm.bt||'';
-    document.getElementById('ht-kl-ct').value=dm.ct||'';
-  }else{klWrap.style.display='none';}
+  // Không cần xử lý KL — tự lấy từ định mức khi submit
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -3306,6 +3335,6 @@ async function edReloadHTFromSheet(){
 edInitSVG(2000,1500);edSetMode('draw');
 loadRegistry();
 </script>
-<div class="app-footer">© 2026 VELA E&C · v7.5 · Lê Trần Anh Toàn</div>
+<div class="app-footer">© 2026 VELA E&C · v7.7 · Lê Trần Anh Toàn</div>
 </body>
 </html>
