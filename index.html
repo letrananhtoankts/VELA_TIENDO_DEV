@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>VELA E&C — Theo dõi tiến độ v7.8</title>
+<title>VELA E&C — Theo dõi tiến độ v7.9</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -843,6 +843,68 @@ option{background:#111827}
     </div>
     <div class="bs-viewer-note" id="bs-viewer-note" style="display:none">
       🔒 Bạn cần quyền Editor để cập nhật tiến độ
+    </div>
+  </div>
+
+  <!-- BOTTOM SHEET HT (Hoàn thiện mobile) -->
+  <div class="bottom-sheet-overlay" id="bs-ht-overlay" onclick="closeBotSheetHT()"></div>
+  <div class="bottom-sheet" id="bottom-sheet-ht">
+    <div class="bs-handle"></div>
+    <div style="padding:0 18px 10px;display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.1em;color:#0ea5e9;text-transform:uppercase;margin-bottom:2px">✨ HOÀN THIỆN</div>
+        <div class="bs-villa-id" id="bs-ht-villa-id" style="padding:0;margin-bottom:2px">—</div>
+        <div class="bs-villa-sub" id="bs-ht-villa-sub" style="padding:0;margin-bottom:4px">—</div>
+        <div id="bs-ht-badge" style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:16px;font-size:10px;font-weight:600;background:rgba(14,165,233,.15);color:#0ea5e9">
+          <span id="bs-ht-badge-txt">—</span>
+        </div>
+      </div>
+      <button onclick="closeBotSheetHT()" style="font-family:inherit;background:none;border:none;font-size:20px;color:#475569;cursor:pointer;padding:0;margin-top:2px">✕</button>
+    </div>
+    <!-- 2 tab: Xem / Cập nhật -->
+    <div class="bs-tabs" id="bs-ht-tabs">
+      <button class="bs-tab-btn active" id="bs-ht-tab-view-btn" onclick="switchBsHtTab('view')">📋 Công tác & Ảnh</button>
+      <button class="bs-tab-btn" id="bs-ht-tab-edit-btn" onclick="switchBsHtTab('edit')">✏️ Cập nhật HT</button>
+    </div>
+    <div class="bs-scroll-area">
+      <!-- Pane xem -->
+      <div class="bs-tab-pane active" id="bs-ht-pane-view">
+        <div class="bs-timeline" id="bs-ht-timeline"></div>
+      </div>
+      <!-- Pane cập nhật HT -->
+      <div class="bs-tab-pane" id="bs-ht-pane-edit">
+        <div class="bs-section">
+          <div class="bs-label">Công tác hoàn thiện</div>
+          <select class="bs-ms-sel" id="bs-ht-task-sel"></select>
+          <div class="bs-label" style="margin-top:8px">Trạng thái</div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <button id="bs-ht-btn-doing" onclick="bsHtSetStatus('doing')" style="flex:1;font-family:inherit;font-size:13px;padding:10px;border-radius:10px;border:1px solid #1e293b;background:#1e293b;color:#64748b;cursor:pointer;font-weight:600">🔄 Đang TC</button>
+            <button id="bs-ht-btn-done" onclick="bsHtSetStatus('done')" style="flex:1;font-family:inherit;font-size:13px;padding:10px;border-radius:10px;border:1px solid #10b981;background:rgba(16,185,129,.15);color:#34d399;cursor:pointer;font-weight:600">✅ Xong</button>
+          </div>
+          <div class="bs-label">Ngày cập nhật</div>
+          <input type="date" class="bs-date-inp" id="bs-ht-date-inp">
+          <div class="bs-label" style="margin-top:8px">📷 Ảnh nghiệm thu <span style="font-size:8px;color:#475569">(bắt buộc)</span></div>
+          <div id="bs-ht-photo-preview-wrap" style="display:none;position:relative;margin-bottom:8px">
+            <img id="bs-ht-photo-preview" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;display:block" src="" alt="">
+            <button onclick="clearBsHtPhoto()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;font-family:inherit">✕</button>
+          </div>
+          <div id="bs-ht-upload-area" style="margin-bottom:8px">
+            <input type="file" id="bs-ht-photo-input" accept="image/*" onchange="onBsHtPhotoSelected(this)" style="display:none">
+            <button onclick="document.getElementById('bs-ht-photo-input').click()" style="font-family:inherit;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:16px;color:#94a3b8;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;transition:all .15s">
+              <span style="font-size:22px">&#128444;</span>
+              <span>Chọn ảnh nghiệm thu</span>
+            </button>
+          </div>
+          <div class="upload-prog" id="bs-ht-upload-prog"><div class="upload-prog-fill" id="bs-ht-upload-fill"></div></div>
+        </div>
+        <div class="bs-btns">
+          <button class="bs-cancel-btn" onclick="switchBsHtTab('view')">← Quay lại</button>
+          <button class="bs-save-btn" id="bs-ht-save-btn" onclick="submitBsHtProgress()" style="background:#0ea5e9">✓ Lưu HT</button>
+        </div>
+      </div>
+    </div>
+    <div class="bs-viewer-note" id="bs-ht-viewer-note" style="display:none">
+      🔒 Bạn cần quyền Editor để cập nhật hoàn thiện
     </div>
   </div>
 
@@ -3450,7 +3512,7 @@ function mobRenderHTMap(){
     const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
     poly.setAttribute('points',pts);poly.setAttribute('fill',color);poly.setAttribute('opacity','0.82');
     poly.style.cursor='pointer';
-    poly.addEventListener('click',()=>{htSel=id;openBotSheet(id);});
+    poly.addEventListener('click',()=>{htSel=id;openBotSheetHT(id);});
     g.appendChild(poly);
     const pa=pts.split(' ').map(p=>p.split(',').map(Number));
     const cx=pa.reduce((a,p)=>a+p[0],0)/pa.length,cy=pa.reduce((a,p)=>a+p[1],0)/pa.length;
@@ -3467,11 +3529,142 @@ function mobHtZoom(f){mobHtZlVal=Math.min(4,Math.max(mobHtGetMinZoom(),mobHtZlVa
 function mobHtApplyZoom(){const el=document.getElementById('mob-ht-map-svg-wrap');if(el)el.style.transform=`scale(${mobHtZlVal})`;}
 
 // ════════════════════════════════════════
+// BOTTOM SHEET HT (Mobile)
+// ════════════════════════════════════════
+let _bsHtStatus='done', _bsHtPhotoFile=null, _bsHtVillaId=null;
+
+function openBotSheetHT(id){
+  _bsHtVillaId=id;
+  const vi=VI[id]||{};
+  document.getElementById('bs-ht-villa-id').textContent=id;
+  document.getElementById('bs-ht-villa-sub').textContent=vi.type||'—';
+
+  // Badge tổng tiến độ HT
+  const tasks=HT_TASKS.map(t=>t.code);
+  const done=tasks.filter(c=>HT_STATUS[id+'|'+c]&&HT_STATUS[id+'|'+c].status==='done').length;
+  const pct=tasks.length?Math.round(done/tasks.length*100):0;
+  document.getElementById('bs-ht-badge-txt').textContent=`${done}/${tasks.length} công tác · ${pct}%`;
+
+  // Tab view/edit
+  const viewerNote=document.getElementById('bs-ht-viewer-note');
+  const tabs=document.getElementById('bs-ht-tabs');
+  if(canEdit()){viewerNote.style.display='none';tabs.style.display='';}
+  else{viewerNote.style.display='';tabs.style.display='none';}
+
+  // Điền select công tác
+  const sel=document.getElementById('bs-ht-task-sel');
+  sel.innerHTML=HT_TASKS.map(t=>`<option value="${t.code}">${t.name}</option>`).join('');
+
+  // Ngày mặc định hôm nay
+  const now=new Date();
+  document.getElementById('bs-ht-date-inp').value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+  switchBsHtTab('view');renderBsHtTimeline(id);clearBsHtPhoto();
+  bsHtSetStatus('done');
+
+  document.getElementById('bs-ht-overlay').classList.add('show');
+  setTimeout(()=>document.getElementById('bottom-sheet-ht').classList.add('show'),10);
+}
+
+function closeBotSheetHT(){
+  document.getElementById('bottom-sheet-ht').classList.remove('show');
+  document.getElementById('bs-ht-overlay').classList.remove('show');
+  setTimeout(()=>{_bsHtVillaId=null;mobRenderHTMap();},300);
+}
+
+function switchBsHtTab(tab){
+  document.getElementById('bs-ht-pane-view').classList.toggle('active',tab==='view');
+  document.getElementById('bs-ht-pane-edit').classList.toggle('active',tab==='edit');
+  document.getElementById('bs-ht-tab-view-btn').classList.toggle('active',tab==='view');
+  document.getElementById('bs-ht-tab-edit-btn').classList.toggle('active',tab==='edit');
+}
+
+function bsHtSetStatus(st){
+  _bsHtStatus=st;
+  const doing=document.getElementById('bs-ht-btn-doing');
+  const done=document.getElementById('bs-ht-btn-done');
+  if(doing){doing.style.background=st==='doing'?'rgba(245,158,11,.2)':'#1e293b';doing.style.borderColor=st==='doing'?'#f59e0b':'#1e293b';doing.style.color=st==='doing'?'#fbbf24':'#64748b';}
+  if(done){done.style.background=st==='done'?'rgba(16,185,129,.2)':'#1e293b';done.style.borderColor=st==='done'?'#10b981':'#1e293b';done.style.color=st==='done'?'#34d399':'#64748b';}
+}
+
+function renderBsHtTimeline(id){
+  const tl=document.getElementById('bs-ht-timeline');if(!tl)return;
+  tl.innerHTML=HT_TASKS.map(task=>{
+    const key=id+'|'+task.code;
+    const st=HT_STATUS[key];
+    const dm=HT_DINH_MUC[key]||{kl:0};
+    const status=st?st.status:'none';
+    const dotCls=status==='done'?'done':status==='doing'?'cur':'pend';
+    const photo=st&&st.photoFileId?`<div class="bs-tl-photo" onclick="event.stopPropagation();openLightbox('${driveThumbUrl(st.photoFileId,1200)}','${id} — ${task.name}','${(st.date||'').replace(/'/g,"\\'")}')"><img src="${driveThumbUrl(st.photoFileId,120)}" loading="lazy" alt="${task.name}"></div>`:`<div class="bs-tl-photo empty" style="display:flex;align-items:center;justify-content:center;font-size:14px;opacity:.25">📷</div>`;
+    return`<div class="bs-tl-item">
+      <div class="bs-tl-dot ${dotCls}">${status==='done'?'✓':status==='doing'?'▶':'○'}</div>
+      <div class="bs-tl-info">
+        <div class="bs-tl-name ${status==='none'?'pend':''}">${task.name}${status==='doing'?' <span style="font-size:9px;color:#93c5fd">đang TC</span>':''}</div>
+        <div class="bs-tl-date">${dm.kl?dm.kl+' '+task.unit:'—'}${st&&st.date?' · '+st.date:''}</div>
+      </div>${photo}</div>`;
+  }).join('');
+}
+
+function onBsHtPhotoSelected(input){
+  const file=input.files[0];if(!file)return;
+  _bsHtPhotoFile=file;
+  const url=URL.createObjectURL(file);
+  document.getElementById('bs-ht-photo-preview').src=url;
+  document.getElementById('bs-ht-photo-preview-wrap').style.display='';
+  document.getElementById('bs-ht-upload-area').style.display='none';
+}
+
+function clearBsHtPhoto(){
+  _bsHtPhotoFile=null;
+  const pp=document.getElementById('bs-ht-photo-preview');if(pp)pp.src='';
+  const ppw=document.getElementById('bs-ht-photo-preview-wrap');if(ppw)ppw.style.display='none';
+  const ua=document.getElementById('bs-ht-upload-area');if(ua)ua.style.display='';
+  const pi=document.getElementById('bs-ht-photo-input');if(pi)pi.value='';
+}
+
+async function submitBsHtProgress(){
+  if(!_bsHtVillaId||!CUR){toast('Chưa chọn căn','err');return;}
+  if(!authToken){toast('Cần đăng nhập','err');return;}
+  const taskCode=document.getElementById('bs-ht-task-sel').value;
+  const dateVal=document.getElementById('bs-ht-date-inp').value;
+  if(!taskCode||!dateVal){toast('Chọn công tác và ngày','err');return;}
+  if(!_bsHtPhotoFile){toast('Vui lòng chọn ảnh nghiệm thu','err');return;}
+  const[yr,mo,dy]=dateVal.split('-');const dateStr=`${dy}/${mo}/${yr}`;
+  const btn=document.getElementById('bs-ht-save-btn');btn.disabled=true;btn.textContent='Đang xử lý...';
+  const prog=document.getElementById('bs-ht-upload-prog');const fill=document.getElementById('bs-ht-upload-fill');prog.style.display='';
+  try{
+    const folderId=await driveGetVillaFolder(CUR.id+'_HT',_bsHtVillaId);
+    const blob=await compressImage(_bsHtPhotoFile);
+    const old=HT_STATUS[_bsHtVillaId+'|'+taskCode];
+    if(old&&old.photoFileId)await driveDeleteFile(old.photoFileId);
+    fill.style.width='30%';
+    const fileId=await driveUploadPhoto(blob,taskCode+'.jpg',folderId,pct=>{fill.style.width=(30+pct*0.5)+'%';});
+    await driveSetPublic(fileId);fill.style.width='90%';
+    await htWriteStatus(_bsHtVillaId,taskCode,_bsHtStatus,dateStr,fileId);
+    HT_STATUS[_bsHtVillaId+'|'+taskCode]={villa:_bsHtVillaId,task:taskCode,status:_bsHtStatus,date:dateStr,photoFileId:fileId,note:''};
+    // Cập nhật KL nhóm
+    Object.keys(HT_GROUPS).forEach(g=>{HT_GROUPS[g].klDone=0;});
+    Object.keys(COORDS).forEach(vid=>{
+      HT_TASKS.forEach(task=>{
+        const dm=HT_DINH_MUC[vid+'|'+task.code];if(!dm)return;
+        const st=HT_STATUS[vid+'|'+task.code];
+        if(st&&st.status==='done'&&HT_GROUPS[task.group])HT_GROUPS[task.group].klDone+=dm.kl;
+      });
+    });
+    fill.style.width='100%';
+    toast(`✓ ${_bsHtVillaId} — ${taskCode} → ${_bsHtStatus==='done'?'Xong':'Đang TC'}`);
+    switchBsHtTab('view');renderBsHtTimeline(_bsHtVillaId);clearBsHtPhoto();
+    mobRenderHTMap();htUpdateSummary();
+  }catch(e){toast('Lỗi: '+e.message,'err');}
+  finally{btn.disabled=false;btn.textContent='✓ Lưu HT';prog.style.display='none';fill.style.width='0%';}
+}
+
+// ════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════
 edInitSVG(2000,1500);edSetMode('draw');
 loadRegistry();
 </script>
-<div class="app-footer">© 2026 VELA E&C · v7.8 · Lê Trần Anh Toàn</div>
+<div class="app-footer">© 2026 VELA E&C · v7.9 · Lê Trần Anh Toàn</div>
 </body>
 </html>
