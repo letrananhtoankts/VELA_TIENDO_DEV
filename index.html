@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>VELA E&C — Theo dõi tiến độ v7.7</title>
+<title>VELA E&C — Theo dõi tiến độ v7.8</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -390,7 +390,7 @@ header{background:#111827;border-bottom:1px solid #1e293b;padding:5px 14px;displ
 .ht-stat{background:#111827;padding:4px 10px;text-align:center}
 .ht-stat-n{font-size:14px;font-weight:700;color:#f1f5f9}
 .ht-stat-l{font-size:8px;color:#475569;text-transform:uppercase;letter-spacing:.04em}
-.ht-group-stat{background:#111827;padding:5px 10px;min-width:140px;flex-shrink:0}
+.ht-group-stat{background:#111827;padding:5px 10px;min-width:0}
 .ht-gs-label{font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;font-weight:600}
 .ht-gs-row{display:flex;align-items:baseline;gap:3px;margin-bottom:2px}
 .ht-gs-done{font-size:12px;font-weight:700;color:#f1f5f9}
@@ -718,36 +718,76 @@ option{background:#111827}
       <div class="mob-proj-name" id="mob-proj-name">—</div>
       <div class="mob-proj-date">Cập nhật: <span id="mob-upd-date">—</span></div>
     </div>
-    <div class="mob-map-section">
-      <div class="mob-map-wrap" id="mob-map-wrap">
-        <div class="mob-map-inner" id="mob-map-inner">
-          <div class="mob-map-svg-wrap" id="mob-map-svg-wrap">
-            <svg id="mob-map-svg" xmlns="http://www.w3.org/2000/svg">
-              <rect id="mob-map-bg" fill="#1e293b"/>
-              <image id="mob-map-img" preserveAspectRatio="xMidYMid meet"/>
-              <g id="mob-pg"></g>
-            </svg>
+    <!-- Mobile switcher KC / HT -->
+    <div style="display:flex;gap:4px;margin-bottom:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;padding:4px">
+      <button id="mob-tab-kc" onclick="mobSwitchTab('kc')" style="flex:1;font-family:inherit;font-size:12px;font-weight:600;padding:8px;border:none;border-radius:8px;cursor:pointer;background:var(--gold);color:#0f172a;transition:all .2s">🏗 Kết cấu</button>
+      <button id="mob-tab-ht" onclick="mobSwitchTab('ht')" style="flex:1;font-family:inherit;font-size:12px;font-weight:600;padding:8px;border:none;border-radius:8px;cursor:pointer;background:transparent;color:#475569;transition:all .2s">✨ Hoàn thiện</button>
+    </div>
+
+    <!-- KC pane -->
+    <div id="mob-pane-kc">
+      <div class="mob-map-section">
+        <div class="mob-map-wrap" id="mob-map-wrap">
+          <div class="mob-map-inner" id="mob-map-inner">
+            <div class="mob-map-svg-wrap" id="mob-map-svg-wrap">
+              <svg id="mob-map-svg" xmlns="http://www.w3.org/2000/svg">
+                <rect id="mob-map-bg" fill="#1e293b"/>
+                <image id="mob-map-img" preserveAspectRatio="xMidYMid meet"/>
+                <g id="mob-pg"></g>
+              </svg>
+            </div>
+          </div>
+          <div class="mob-map-hint" id="mob-map-hint">👆 Chạm căn để xem tiến độ & ảnh</div>
+          <div class="mob-map-zc">
+            <div class="mob-zb" onclick="mobZoom(1.3)">+</div>
+            <div class="mob-zb" onclick="mobZoom(0.77)">−</div>
+            <div class="mob-zb" onclick="mobFitZoom()" style="font-size:9px">FIT</div>
           </div>
         </div>
-        <div class="mob-map-hint" id="mob-map-hint">👆 Chạm căn để xem tiến độ & ảnh</div>
-        <div class="mob-map-zc">
-          <div class="mob-zb" onclick="mobZoom(1.3)">+</div>
-          <div class="mob-zb" onclick="mobZoom(0.77)">−</div>
-          <div class="mob-zb" onclick="mobFitZoom()" style="font-size:9px">FIT</div>
-        </div>
+      </div>
+      <div class="mob-section">
+        <div class="mob-sec-title">Tiến độ Milestone</div>
+        <div id="mob-ms-list"></div>
+      </div>
+      <div class="mob-section">
+        <div class="mob-sec-title">Khối lượng tổng KC</div>
+        <div id="mob-kl-list"></div>
+      </div>
+      <div class="mob-section">
+        <div class="mob-sec-title">Sản lượng KC tuần</div>
+        <div class="mob-chart-wrap"><canvas id="mob-weekly-chart"></canvas></div>
       </div>
     </div>
-    <div class="mob-section">
-      <div class="mob-sec-title">Tiến độ Milestone</div>
-      <div id="mob-ms-list"></div>
-    </div>
-    <div class="mob-section">
-      <div class="mob-sec-title">Khối lượng tổng</div>
-      <div id="mob-kl-list"></div>
-    </div>
-    <div class="mob-section">
-      <div class="mob-sec-title">Sản lượng tuần</div>
-      <div class="mob-chart-wrap"><canvas id="mob-weekly-chart"></canvas></div>
+
+    <!-- HT pane -->
+    <div id="mob-pane-ht" style="display:none">
+      <div class="mob-map-section">
+        <div class="mob-map-wrap" id="mob-ht-map-wrap">
+          <div class="mob-map-inner" id="mob-ht-map-inner">
+            <div class="mob-map-svg-wrap" id="mob-ht-map-svg-wrap">
+              <svg id="mob-ht-map-svg" xmlns="http://www.w3.org/2000/svg">
+                <rect id="mob-ht-map-bg" fill="#1e293b"/>
+                <image id="mob-ht-map-img" preserveAspectRatio="xMidYMid meet"/>
+                <g id="mob-ht-pg"></g>
+              </svg>
+            </div>
+          </div>
+          <div class="mob-map-hint">👆 Chạm căn để xem hoàn thiện</div>
+          <div class="mob-map-zc">
+            <div class="mob-zb" onclick="mobHtZoom(1.3)">+</div>
+            <div class="mob-zb" onclick="mobHtZoom(0.77)">−</div>
+            <div class="mob-zb" onclick="mobHtFitZoom()" style="font-size:9px">FIT</div>
+          </div>
+        </div>
+      </div>
+      <div class="mob-section">
+        <div class="mob-sec-title">Sản lượng Hoàn thiện</div>
+        <div id="mob-ht-group-list"></div>
+      </div>
+      <div class="mob-section">
+        <div class="mob-sec-title">Tiến độ công tác</div>
+        <div id="mob-ht-task-list"></div>
+      </div>
     </div>
   </div>
 
@@ -926,10 +966,10 @@ option{background:#111827}
 
   <!-- TAB: HOÀN THIỆN -->
   <div class="tab-content" id="tab-hoanThien">
-    <div id="ht-summary-bar" style="display:flex;flex-wrap:nowrap;gap:1px;background:#1e293b;border-bottom:1px solid #1e293b;flex-shrink:0;overflow-x:auto;min-height:52px">
-      <div class="ht-stat" style="min-width:80px"><div class="ht-stat-n" id="ht-s-total">—</div><div class="ht-stat-l">Tổng căn</div></div>
-      <div class="ht-stat" style="min-width:80px"><div class="ht-stat-n" id="ht-s-doing" style="color:var(--gold)">—</div><div class="ht-stat-l">Đang TC</div></div>
-      <div class="ht-stat" style="min-width:80px"><div class="ht-stat-n" id="ht-s-done" style="color:#34d399">—</div><div class="ht-stat-l">HT 100%</div></div>
+    <div id="ht-summary-bar" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#1e293b;border-bottom:1px solid #1e293b;flex-shrink:0">
+      <div class="ht-stat"><div class="ht-stat-n" id="ht-s-total">—</div><div class="ht-stat-l">Tổng căn</div></div>
+      <div class="ht-stat"><div class="ht-stat-n" id="ht-s-doing" style="color:var(--gold)">—</div><div class="ht-stat-l">Đang TC</div></div>
+      <div class="ht-stat"><div class="ht-stat-n" id="ht-s-done" style="color:#34d399">—</div><div class="ht-stat-l">HT 100%</div></div>
       <div id="ht-group-stats" style="display:contents"></div>
     </div>
     <div class="ht-wrap">
@@ -2524,8 +2564,7 @@ function renderMobileOverview(){
   if(window.innerWidth>767)return;
   if(!CUR)return;
   document.getElementById('mob-proj-name').textContent=CUR.name;
-  mobSetupMap();
-  const tot=Object.keys(COORDS).length;
+  mobSetupMap();  const tot=Object.keys(COORDS).length;
   const mobMsList=document.getElementById('mob-ms-list');mobMsList.innerHTML='';
   MS.forEach((m,i)=>{
     const cnt=Object.values(SD).filter(s=>s&&s.ms&&mi(s.ms)>=i).length;
@@ -2876,11 +2915,15 @@ function htUpdateSummary(){
   document.getElementById('ht-leg-doing-cnt').textContent=doing;
   document.getElementById('ht-leg-none-cnt').textContent=none;
 
-  // Render group KL stats
+  // Render group KL stats — full width grid
   const gc=document.getElementById('ht-group-stats');if(!gc)return;
   gc.innerHTML='';
+  const gkeys=Object.keys(HT_GROUPS);
+  // Tổng số cột = 3 (stat cố định) + số nhóm → update grid
+  const bar=document.getElementById('ht-summary-bar');
+  if(bar)bar.style.gridTemplateColumns=`repeat(${3+gkeys.length},1fr)`;
   const GRP_COLORS=['#60a5fa','#34d399','#fbbf24','#a78bfa','#f87171','#fb923c','#2dd4bf'];
-  Object.keys(HT_GROUPS).forEach((gk,i)=>{
+  gkeys.forEach((gk,i)=>{
     const g=HT_GROUPS[gk];
     const pct=g.klPlan>0?Math.round(g.klDone/g.klPlan*100):0;
     const col=GRP_COLORS[i%GRP_COLORS.length];
@@ -3330,11 +3373,105 @@ async function edReloadHTFromSheet(){
 }
 
 // ════════════════════════════════════════
+// MOBILE — SWITCH TAB KC / HT
+// ════════════════════════════════════════
+let mobCurrentTab='kc';
+let mobHtZlVal=0.3;
+
+function mobSwitchTab(tab){
+  mobCurrentTab=tab;
+  document.getElementById('mob-pane-kc').style.display=tab==='kc'?'':'none';
+  document.getElementById('mob-pane-ht').style.display=tab==='ht'?'':'none';
+  const btnKC=document.getElementById('mob-tab-kc');
+  const btnHT=document.getElementById('mob-tab-ht');
+  if(btnKC){btnKC.style.background=tab==='kc'?'var(--gold)':'transparent';btnKC.style.color=tab==='kc'?'#0f172a':'#475569';}
+  if(btnHT){btnHT.style.background=tab==='ht'?'#0ea5e9':'transparent';btnHT.style.color=tab==='ht'?'#fff':'#475569';}
+  if(tab==='ht'){mobRenderHTOverview();}
+}
+
+function mobRenderHTOverview(){
+  if(!CUR)return;
+  // Setup HT map
+  const w=CUR.imgW||2000,h=CUR.imgH||1760;
+  const svg=document.getElementById('mob-ht-map-svg');
+  if(svg){
+    svg.setAttribute('width',w);svg.setAttribute('height',h);svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+    document.getElementById('mob-ht-map-bg').setAttribute('width',w);document.getElementById('mob-ht-map-bg').setAttribute('height',h);
+    if(CUR.imageUrl){const img=document.getElementById('mob-ht-map-img');img.setAttribute('href',CUR.imageUrl);img.setAttribute('width',w);img.setAttribute('height',h);}
+  }
+  mobHtFitZoom();mobRenderHTMap();
+
+  // Group KL bars
+  const grpList=document.getElementById('mob-ht-group-list');
+  if(grpList){
+    grpList.innerHTML='';
+    const GRP_COLORS=['#60a5fa','#34d399','#fbbf24','#a78bfa','#f87171','#fb923c','#2dd4bf'];
+    Object.keys(HT_GROUPS).forEach((gk,i)=>{
+      const g=HT_GROUPS[gk];
+      const pct=g.klPlan>0?Math.round(g.klDone/g.klPlan*100):0;
+      const col=GRP_COLORS[i%GRP_COLORS.length];
+      grpList.innerHTML+=`
+        <div class="mob-kl-row">
+          <div class="mob-kl-label" style="color:${col};width:60px;font-size:9px">${g.name}</div>
+          <div class="mob-kl-bar-wrap"><div class="mob-kl-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+          <div class="mob-kl-nums">${fmt(g.klDone)}/${fmt(g.klPlan)} ${g.unit}</div>
+          <div class="mob-kl-pct" style="color:${col}">${pct}%</div>
+        </div>`;
+    });
+  }
+
+  // Task progress list (theo milestone/task)
+  const taskList=document.getElementById('mob-ht-task-list');
+  if(taskList){
+    taskList.innerHTML='';
+    const tot=Object.keys(COORDS).length;
+    HT_TASKS.forEach(task=>{
+      const done=Object.keys(COORDS).filter(id=>HT_STATUS[id+'|'+task.code]&&HT_STATUS[id+'|'+task.code].status==='done').length;
+      const doing=Object.keys(COORDS).filter(id=>HT_STATUS[id+'|'+task.code]&&HT_STATUS[id+'|'+task.code].status==='doing').length;
+      if(done===0&&doing===0)return;
+      const pct=tot>0?Math.round(done/tot*100):0;
+      taskList.innerHTML+=`
+        <div class="mob-ms-row">
+          <div class="mob-ms-dot" style="background:#0ea5e9"></div>
+          <div class="mob-ms-name">${task.name}</div>
+          <div class="mob-ms-bar-wrap"><div class="mob-ms-bar-fill" style="width:${pct}%;background:#0ea5e9"></div></div>
+          <div class="mob-ms-count">${done}/${tot}</div>
+          <div class="mob-ms-pct">${pct}%</div>
+        </div>`;
+    });
+    if(!taskList.innerHTML)taskList.innerHTML='<div style="font-size:10px;color:#475569;text-align:center;padding:8px">Chưa có dữ liệu hoàn thiện</div>';
+  }
+}
+
+function mobRenderHTMap(){
+  const g=document.getElementById('mob-ht-pg');if(!g)return;g.innerHTML='';
+  Object.entries(COORDS).forEach(([id,pts])=>{
+    const color=htGetColor(id);
+    const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    poly.setAttribute('points',pts);poly.setAttribute('fill',color);poly.setAttribute('opacity','0.82');
+    poly.style.cursor='pointer';
+    poly.addEventListener('click',()=>{htSel=id;openBotSheet(id);});
+    g.appendChild(poly);
+    const pa=pts.split(' ').map(p=>p.split(',').map(Number));
+    const cx=pa.reduce((a,p)=>a+p[0],0)/pa.length,cy=pa.reduce((a,p)=>a+p[1],0)/pa.length;
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',cx);lbl.setAttribute('y',cy);lbl.setAttribute('text-anchor','middle');lbl.setAttribute('dominant-baseline','central');
+    lbl.setAttribute('font-size','10');lbl.setAttribute('font-weight','700');lbl.setAttribute('fill','#fff');lbl.setAttribute('pointer-events','none');
+    const pct=htGetPct(id);lbl.textContent=pct?pct+'%':id;g.appendChild(lbl);
+  });
+}
+
+function mobHtGetMinZoom(){const wrap=document.getElementById('mob-ht-map-wrap');if(!wrap)return 0.3;return wrap.clientWidth/(CUR?CUR.imgW||2000:2000);}
+function mobHtFitZoom(){mobHtZlVal=mobHtGetMinZoom();mobHtApplyZoom();}
+function mobHtZoom(f){mobHtZlVal=Math.min(4,Math.max(mobHtGetMinZoom(),mobHtZlVal*f));mobHtApplyZoom();}
+function mobHtApplyZoom(){const el=document.getElementById('mob-ht-map-svg-wrap');if(el)el.style.transform=`scale(${mobHtZlVal})`;}
+
+// ════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════
 edInitSVG(2000,1500);edSetMode('draw');
 loadRegistry();
 </script>
-<div class="app-footer">© 2026 VELA E&C · v7.7 · Lê Trần Anh Toàn</div>
+<div class="app-footer">© 2026 VELA E&C · v7.8 · Lê Trần Anh Toàn</div>
 </body>
 </html>
